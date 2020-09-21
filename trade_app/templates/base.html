@@ -1,0 +1,57 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Home{% endblock %}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static 'base/css/styles.css' %}">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-sm bg-success navbar-dark">
+            <!-- Brand/logo -->
+            <a class="navbar-brand" href="{% url 'home' %}">E<i class="fas fa-dollar-sign"></i>Trade <i class="fas fa-coins"></i></a>
+            <!-- Links -->
+            <ul class="navbar-nav">
+                {% block home %}
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'home' %}">Home</a>
+                </li>
+                {% endblock %}
+                {% block portfolio %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'portfolio' %}">My Portfolio</a>
+                </li>
+                {% endblock %}
+                {% block trade %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'trade' %}">Trade</a>
+                </li>
+                {% endblock %}
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">Log In</a>
+                </li>
+                <span class="navbar-text">|</span>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'portfolio' %}">Register</a>
+                </li>
+            </ul>
+        </nav>
+        {% block content %}
+        <ul>
+        {% for h in news %}
+            <li>{{h.title}}</li>
+            <img src="{{h.thumbnailImage}}" alt="thunb">
+        {% endfor %}
+        </ul>
+        {% endblock%}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://kit.fontawesome.com/67e14e1161.js" crossorigin="anonymous"></script>
+    </body>
+</html>
