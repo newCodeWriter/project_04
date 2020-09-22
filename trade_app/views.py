@@ -25,11 +25,15 @@ def home(request):
     # short_url = headline['shortURL']
 
     for d in headline:
-        dt = datetime.fromtimestamp(d['published']).strftime("%m/%d/%Y")
-        d['published'] = dt
+        dt = datetime.fromtimestamp(d['updatedAt']).strftime("%d %b %Y %H:%M:%S")
+        dl = datetime.strptime(dt, "%d %b %Y %H:%M:%S")
+        d['updatedAt'] = dl
+
+    updated_now = datetime.now()
 
     news = {
-        'news': headline
+        'news': headline,
+        'updated': updated_now
     }
     
     return render(request, 'base.html', news)
