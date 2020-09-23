@@ -12,19 +12,23 @@
 .fa-dollar-sign{
     color: white;
 }
-.headlines{
-    font-size: .90rem !important;
-    padding-left: 0 !important;
-}
-.category{
-    font-size: .80rem !important;
-}
-.headline_title:hover{
-    text-decoration: none;
-}
-input:focus{
+/* input:focus{
     box-shadow: none !important;
-}
+} */
 .container-fluid{
-    padding: 0 5.5rem !important;
+    padding: 0 6rem !important;
+}
+.tables_container{
+    padding-left: 4rem !important;
+}
+td.symbol{
+    border-top: none !important;
+    padding-top: .05rem !important;
+}
+.t-data{
+    padding-top: .3rem !important;
+    padding-bottom: .05rem !important;
+}
+tr.small{
+    font-size: 70% !important;
 }
