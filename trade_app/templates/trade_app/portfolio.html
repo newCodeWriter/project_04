@@ -1,0 +1,254 @@
+{% extends 'trade_app/base.html' %}
+
+{% block title %}Portfolio{% endblock %}
+
+{% block home %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'home' %}">Home</a>
+</li>
+{% endblock %}
+
+{% block portfolio %}
+<li class="nav-item">
+    <a class="nav-link active bg-secondary" href="{% url 'portfolio' %}">My Portfolio</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-sm-5 pr-5 border-right">
+        <!-- positions table -->
+        <!-- ( block trading ) -->
+        <h5 class="text-success">Positions:</h5>
+        <div class="scroll-h">
+            <table class="table table-hover table-sm">
+                <thead class="thead-light">
+                    <tr class="small">
+                        <th class="fixed-t">Symbol</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <!-- multiply by quantity for day gain $ -->
+                        <th>Day Gain $</th> 
+                        <th>Day Gain %</th>
+                        <th>Gain $</th> 
+                        <th>Gain %</th>
+                        <th>Purchase</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ( for s in stocks ) -->
+                    <tr class="small">
+                        <th scope="row" class="border-right fixed-t bg-light"><a href="#">AAPL</a></th>
+                        <td>25</td>
+                        <td>$2,000</td>
+                        <!-- ( if gain > ) -->
+                        <td class="text-success">$2.15</td>
+                        <!-- ( else ) -->
+                        <!-- <td class="text-danger"></td> -->
+                        <!-- ( endif ) -->
+                        <!-- ( if gain > 0) -->
+                        <td class="text-success">1.17</td>
+                        <!-- ( else ) -->
+                        <!-- <td class="text-danger"></td> -->
+                        <!-- ( endif ) -->
+                        <td>na</td>
+                        <td>na</td>
+                        <td>na</td>
+                    </tr>
+                    <!-- ( endfor ) -->
+                </tbody>
+            </table>
+        </div>
+        <p><strong>Total Shares: </strong>25</p>
+        <!-- watchlist table -->
+        <h5 class="text-success mt-5">Watchlist:</h5>
+        <div class="scroll-h">
+            <table class="table table-hover table-sm">
+                <thead class="thead-light">
+                    <tr class="small">
+                        <th class="fixed-t">Symbol</th>
+                        <th>Price</th>
+                        <th>Last Chg $</th>
+                        <th>Last Chg %</th>
+                        <th>Volume</th>
+                        <th>Bid</th>
+                        <th>Ask</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ( for s in stocks ) -->
+                    <tr class="small">
+                        <th scope="row" class="border-right bg-light fixed-t"><a href="#">AAPL</a></th>
+                        <td>$110</td>
+                        <!-- ( if gain > 0) -->
+                        <td class="text-success">$2.15</td>
+                        <!-- ( else ) -->
+                        <!-- <td class="text-danger"></td> -->
+                        <!-- ( endif ) -->
+                        <!-- ( if gain > 0 ) -->
+                        <td class="text-success">1.17</td>
+                        <!-- ( else ) -->
+                        <!-- <td class="text-danger"></td> -->
+                        <!-- ( endif ) -->
+                        <td>4,567,768</td>
+                        <td>$108.75</td>
+                        <td>$109.82</td>
+                    </tr>
+                    <!-- ( endfor ) -->
+                </tbody>
+            </table>
+        </div>
+        <!-- ( endblock ) -->
+    </div>
+    <div class="col-sm-7 pl-5 pr-5">
+        <form class="w-50" action="#" method="GET">
+            <div class="input-group mb-3">
+                <input type="search" class="form-control" placeholder="Search...">
+                <div class="input-group-append">
+                    <!-- add search icon from font awesome -->
+                <button class="btn btn-outline-success" type="submit" id="btn_searc">Search</button>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="col-sm-10">
+                <!-- (symbol) - (name of symbol) -->
+                <h3><span class="text-success">AAPL</span> - APPLE, INC.</h3>
+                <!-- ( if already on list, disable button ) -->
+                <button type="submit" class="btn btn-outline-success" formaction="#"><small>+ Watchlist</small></button>
+            </div>
+            <!-- buy/sell buttons -->
+            <!-- (block btns ) -->
+            <div class="col-sm-2">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-primary active"><input type="radio" name="buy" id="buy"> Buy</label>
+                    <label class="btn btn-danger"><input type="radio" name="sell" id="sell"> Sell</label>
+                </div>
+            </div>
+            <!-- ( endblock %) -->
+        </div>
+        <p class="mt-5">Chart here<br>
+        <br>
+        <br>
+        <br>
+        <br><br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br></p>
+        <!-- historical data table -->
+        <div class="scroll-v">
+            <table class="table table-hover table-sm">
+                <thead class="thead-light">
+                    <tr class="small">
+                        <th class="fixed-h">Date</th>
+                        <th class="fixed-h">Open</th>
+                        <th class="fixed-h">High</th>
+                        <th class="fixed-h">Low</th>
+                        <th class="fixed-h">Close</th>
+                        <th class="fixed-h">Adj Close</th>
+                        <th class="fixed-h">Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- (for h in history) -->
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <tr class="small">
+                        <td>September 20, 2020</td>
+                        <td>$110</td>
+                        <td>$1.52</td>
+                        <td>1.17%</td>
+                        <td>$108.75</td>
+                        <td>$107.52</td>
+                        <td>4,556,789</td>
+                    </tr>
+                    <!-- (endfor ) -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

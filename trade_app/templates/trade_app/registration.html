@@ -1,0 +1,52 @@
+{% extends "trade_app/base.html" %}
+{{ form.non_field_errors }}
+
+{% block html %}<html lang="en" class="bg_image">{% endblock %}
+{% block title %}Register{% endblock %}
+
+{% block home %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'home' %}">Home</a>
+</li>
+{% endblock %}
+
+{% block registration %}
+
+<li class="nav-item">
+    <a href="{% url 'register' %}" class="nav-link active bg-secondary pr-3" id="navbardrop">Register</a>
+</li>
+
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto mt-5 pt-5 pb-5 pl-2 pr-2 position-relative register-container text-white">
+    <form action="{% url 'register' %}" method="POST" class="pl-5 pr-5">
+        {% csrf_token %}
+        <h4 class="font-weight-bold">Register</h4>
+        <div>Please fill in this form to create a new account.</div><hr>
+        <div class="fieldWrapper input-group text-white">
+            <div class="input-group-prepend">
+            <div class="input-group-text bg-success text-light"><i class="fas fa-user"></i></div>
+            </div>
+            {{form.user_name.errors}}
+            {{ form.user_name }}
+        </div>
+        <div class="fieldWrapper input-group mt-3">
+            <div class="input-group-prepend">
+            <div class="input-group-text bg-success text-light"><i class="fas fa-envelope"></i></div>
+            </div>
+            {{form.email.errors}}
+            {{ form.email }}
+        </div>
+        <div class="fieldWrapper input-group mt-3">
+            <div class="input-group-prepend">
+            <div class="input-group-text bg-success text-light"><i class="fas fa-key"></i></div>
+            </div>
+            {{form.pwd.errors}}
+            {{ form.pwd }}
+        </div><hr>
+        <button class="btn btn-outline-success pl-4 pr-4 mt-4 d-block ml-auto" type="submit">Register</button>
+        <p class="text-right mt-2">Already have an account? <a href="{% url 'login' %}" class="text-success">Log In</a></p>
+    </form>
+</div>
+{% endblock %}

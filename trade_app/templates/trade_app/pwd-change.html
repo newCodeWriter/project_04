@@ -1,0 +1,24 @@
+{% extends "trade_app/base.html" %}
+
+{% block login %}
+{{ form.non_field_errors }}
+
+<form action="#" method="POST">
+    {% csrf_token %}
+    <h4>Enter New Password</h4>
+    <p>Password must be at least eight characters.</p>
+    <div class="fieldWrapper form-group">
+        {{form.new_pwd.errors}}
+        <label for="{{ form.new_pwd.id_for_label }}">New Password:</label>
+        {{form.new_pwd}}
+    </div>
+    <div class="fieldWrapper form-group">
+        {{form.confirm_pwd.errors}}
+        <label for="{{ form.confirm_pwd.id_for_label }}">New Password:</label>
+        {{form.confirm_pwd}}
+    </div>
+    <button type="submit" class="btn btn-success mt-4">Change Password</button>
+    <button type="submit" class="btn btn-outline-success mt-4 ml-2 pl-4 pr-4" formaction="#">Cancel</button>
+</form>
+
+{% endblock %}
