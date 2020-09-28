@@ -17,6 +17,7 @@ yfinance = "*"
 pandas-datareader = "*"
 django-pandas = "*"
 seaborn = "*"
+mysqlclient = "*"
 
 [requires]
 python_version = "3.8"
