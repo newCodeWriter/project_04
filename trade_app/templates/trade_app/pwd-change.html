@@ -1,24 +1,44 @@
 {% extends "trade_app/base.html" %}
 
-{% block login %}
+{% block home %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'home' %}">Home</a>
+</li>
+{% endblock %}
+
+{% block content %}
 {{ form.non_field_errors }}
 
-<form action="#" method="POST">
+<form action="{% url 'pwd-change' %}" method="POST" class="mt-5">
+    {% if form.old_password.errors or form.new_password1.errors or form.new_password2.errors %}
+    <ul>
+        {% if form.old_password.errors %}
+        <li class="text-danger">{{form.old_password.errors}}</li>
+        {% endif %}
+        {% if form.new_password1.errors %}
+        <li class="text-danger">{{form.new_password1.errors}}</li>
+        {% endif %}
+        {% if form.new_password2.errors %}
+        <li class="text-danger">{{form.new_password2.errors}}</li>
+        {% endif %}
+    </ul>
+    {% endif %}
     {% csrf_token %}
-    <h4>Enter New Password</h4>
-    <p>Password must be at least eight characters.</p>
+    <h4>Password Change</h4>
+    <p>Please enter your old password and then your new password twice so we can verify you typed it in correctly. </p>
     <div class="fieldWrapper form-group">
-        {{form.new_pwd.errors}}
-        <label for="{{ form.new_pwd.id_for_label }}">New Password:</label>
-        {{form.new_pwd}}
+        <label for="{{ form.old_password.id_for_label }}">Old Password:</label>
+        {{form.old_password}}
     </div>
     <div class="fieldWrapper form-group">
-        {{form.confirm_pwd.errors}}
-        <label for="{{ form.confirm_pwd.id_for_label }}">New Password:</label>
-        {{form.confirm_pwd}}
+        <label for="{{ form.new_password1.id_for_label }}">New Password:</label>
+        {{form.new_password1}}
+    </div>
+    <div class="fieldWrapper form-group">
+        <label for="{{ form.new_password2.id_for_label }}">Re-enter New Password:</label>
+        {{form.new_password2}}
     </div>
     <button type="submit" class="btn btn-success mt-4">Change Password</button>
-    <button type="submit" class="btn btn-outline-success mt-4 ml-2 pl-4 pr-4" formaction="#">Cancel</button>
 </form>
 
 {% endblock %}

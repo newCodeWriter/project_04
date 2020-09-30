@@ -21,6 +21,16 @@
 {% block content %}
 <div class="mx-auto mt-5 pt-5 pb-5 pl-2 pr-2 position-relative register-container text-white">
     <form action="{% url 'register' %}" method="POST" class="pl-5 pr-5">
+        {% if form.username.errors or form.email.errors %}
+        <ul>
+            {% if form.username.errors %}
+            <li class="text-danger">{{form.username.errors}}</li>
+            {% endif %}
+            {% if form.email.errors %}
+            <li class="text-danger">{{form.email.errors}}</li>
+            {% endif %}
+        </ul>
+        {% endif %}
         {% csrf_token %}
         <h4 class="font-weight-bold">Register</h4>
         <div>Please fill in this form to create a new account.</div><hr>
@@ -28,21 +38,18 @@
             <div class="input-group-prepend">
             <div class="input-group-text bg-success text-light"><i class="fas fa-user"></i></div>
             </div>
-            {{form.user_name.errors}}
-            {{ form.user_name }}
+            {{ form.username }}
         </div>
         <div class="fieldWrapper input-group mt-3">
             <div class="input-group-prepend">
             <div class="input-group-text bg-success text-light"><i class="fas fa-envelope"></i></div>
             </div>
-            {{form.email.errors}}
             {{ form.email }}
         </div>
         <div class="fieldWrapper input-group mt-3">
             <div class="input-group-prepend">
             <div class="input-group-text bg-success text-light"><i class="fas fa-key"></i></div>
             </div>
-            {{form.pwd.errors}}
             {{ form.pwd }}
         </div><hr>
         <button class="btn btn-outline-success pl-4 pr-4 mt-4 d-block ml-auto" type="submit">Register</button>

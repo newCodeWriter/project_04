@@ -1,9 +1,17 @@
 {% extends 'trade_app/base.html' %}
 
+{% block home %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'home' %}">Home</a>
+</li>
+{% endblock %}
+
+{% block title %}New Password Confirmed{% endblock %}
+
 {% block content %}
-<form action="#">
+<form action="{% url 'home' %}" class="mt-5">
     <h4>Password Change Complete</h4>
-    <p class="mt-4">Your password has been changed. You may now log in.</p>
-    <button type="submit" class="btn btn-success mt-2">Log In</button>
+    <p class="mt-4">Your password has been updated successfully.</p>
+    <button type="submit" class="btn btn-success mt-2 pl-3 pr-3">OK</button>
 </form>
 {% endblock %}
