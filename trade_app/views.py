@@ -4,10 +4,11 @@ import requests
 # import matplotlib.pyplot as plt
 # from matplotlib import style
 from datetime import datetime
-from .forms import RegisterForm, LoginForm, PasswordChange, PasswordReset
+from .forms import RegisterForm, PasswordChange, PasswordReset
 from django.contrib.auth.models import User
 from .models import Account
 from django.urls import reverse
+from django.contrib.auth.views import LoginView
 
 
 def home(request):
@@ -127,19 +128,9 @@ def trade(request):
 def get_registration(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
-        # check whether it's valid:
         if form.is_valid():
-            # process the data in form.cleaned_data as required
-            user_name = form.cleaned_data['user_name']
-            email = form.cleaned_data['email']
-            pwd = form.cleaned_data['pwd']
-            new_user = User.objects.create_user(user_name, email, pwd)
-            new_user.save()
-            # return render(request, 'trade_app/registration-confirmed.html')
-            # redirect to a new URL:
-            return HttpResponseRedirect(reverse('confirm-user', args=[request.POST['user_name']]))
-
-    # if a GET (or any other method) we'll create a blank form
+            form.save()
+            return HttpResponseRedirect(reverse('confirm-user', args=[request.POST['username']]))
     else:
         form = RegisterForm()
 
@@ -149,23 +140,18 @@ def deposit(request, newuser):
     add_user = User.objects.get(username=newuser)
     new_user_account = Account(user=add_user, cash_balance=1500)
     new_user_account.save()
-    return render(request, 'trade_app/registration-confirmed.html')
 
-def get_login(request):
-    # if request.method == 'POST':
-    #     form = LoginForm(request.POST)
-    #     # check whether it's valid:
-    #     if form.is_valid():
-    #         # process the data in form.cleaned_data as required
-    #         user_name = form.cleaned_data['user_name']
-    #         email = form.cleaned_data['email']
-    #         pwd = form.cleaned_data['pwd']
-    #         new_user = User.objects.create_user(user_name, email, pwd)
-    #         new_user.save()
-    #         # redirect to a new URL:
-    #     # return render(request, 'trade_app/base.html')
+    context = {'user': add_user}
+    return render(request, 'trade_app/registration-confirmed.html', context)
 
-    # # if a GET (or any other method) we'll create a blank form
-    # else:
-        form = LoginForm()
-        return render(request, 'trade_app/login.html', {'form': form})
+def user_account(request):
+    if request.user.is_authenticated:
+        username = request.user.get_username()
+    else: 
+        username = None
+
+    context = {'user': username}
+    return render(request, 'trade_app/user-account.html', context)
+
+def new_pwd_confirmed(request):
+    return render(request, 'trade_app/new-pwd-confirmed.html')
