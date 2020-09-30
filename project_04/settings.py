@@ -131,3 +131,6 @@ BOOTSTRAP4 = {
     "javascript_in_head": True,
     "include_jquery": True,
 }
+
+LOGIN_REDIRECT_URL = 'useract'
+LOGOUT_REDIRECT_URL = 'home'
