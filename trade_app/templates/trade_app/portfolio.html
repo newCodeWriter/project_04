@@ -10,7 +10,27 @@
 
 {% block portfolio %}
 <li class="nav-item">
-    <a class="nav-link active bg-secondary" href="{% url 'portfolio' %}">My Portfolio</a>
+    <a class="nav-link active bg-secondary" href="{% url 'portfolio' %}">Portfolio</a>
+</li>
+{% endblock %}
+
+{% block trade %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'trade' %}">Trade</a>
+</li>
+{% endblock %}
+
+{% block login %}
+{% endblock %}
+
+{% block registration %}
+<li class="nav-item dropdown">
+    <a class="nav-link pr-4" href="#" data-toggle="dropdown"><i class="fas fa-user"></i> Welcome, {{user|title}}</a>
+    <div class="dropdown-menu">
+        <a class="dropdown-item" href="{% url 'pwd-change' %}">Change Password</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+    </div>
 </li>
 {% endblock %}
 

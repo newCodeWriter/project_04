@@ -1,0 +1,80 @@
+{% load static %}
+
+<!DOCTYPE html>
+{% block html %}<html lang="en">{% endblock %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Home{% endblock %}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static 'trade_app/styles.css' %}">
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <!-- navigation menu -->
+        <nav class="navbar navbar-expand-sm navbar-dark bg-success p-0">
+            <!-- Brand/logo -->
+            <a class="navbar-brand pl-4 pr-3" href="#">TradeUp <i class="fas fa-sort-amount-up"></i></a>
+            <!-- Links -->
+            <ul class="navbar-nav">
+                {% block home %}
+                <li class="nav-item">
+                    <a class="nav-link active bg-secondary" href="#">Home</a>
+                </li>
+                {% endblock %}
+                {% block portfolio %}
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'portfolio' %}">Portfolio</a>
+                </li>
+                {% else %}
+                {% endif %}
+                {% endblock %}
+                {% block trade %}
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'trade' %}">Trade</a>
+                </li>
+                {% else %}
+                {% endif %}
+                {% endblock %}
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                {% block login %}
+                {% if user.is_authenticated %}
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                </li>
+                {% endif %}
+                {% endblock %}
+                {% block registration %}
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link pr-4" href="#" data-toggle="dropdown"><i class="fas fa-user"></i> Welcome, {{user|title}}</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'pwd-change' %}">Change Password</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                    </div>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link pr-3" href="{% url 'register' %}">Register</a>
+                </li>
+                {% endif %}
+                {% endblock %}
+            </ul>
+        </nav>
+        <div class="container-fluid position-absolute">
+            {% block content %}
+
+            
+            {% endblock %}
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://kit.fontawesome.com/67e14e1161.js" crossorigin="anonymous"></script>
+    </body>
+</html>
