@@ -16,7 +16,7 @@
 
 {% block trade %}
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'trade' %}">Trade</a>
+    <a class="nav-link" href="{% url 'trade' buy symbol %}">Trade</a>
 </li>
 {% endblock %}
 
@@ -37,8 +37,6 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col-sm-5 pr-5 border-right">
-        <!-- positions table -->
-        <!-- ( block trading ) -->
         <h5 class="text-success">Positions:</h5>
         <div class="scroll-h">
             <table class="table table-hover table-sm">
@@ -57,9 +55,10 @@
                 </thead>
                 <tbody>
                     <!-- ( for s in stocks ) -->
+                    {% for p in positions %}
                     <tr class="small">
-                        <th scope="row" class="border-right fixed-t bg-light"><a href="#">AAPL</a></th>
-                        <td>25</td>
+                        <th scope="row" class="border-right fixed-t bg-light"><a href="#">{{p.symbol}}</a></th>
+                        <td>{{p.shares}}</td>
                         <td>$2,000</td>
                         <!-- ( if gain > ) -->
                         <td class="text-success">$2.15</td>
@@ -75,12 +74,11 @@
                         <td>na</td>
                         <td>na</td>
                     </tr>
-                    <!-- ( endfor ) -->
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
-        <p><strong>Total Shares: </strong>25</p>
-        <!-- watchlist table -->
+        <p><strong>Total Shares: </strong>{{total}}</p>
         <h5 class="text-success mt-5">Watchlist:</h5>
         <div class="scroll-h">
             <table class="table table-hover table-sm">
@@ -97,8 +95,9 @@
                 </thead>
                 <tbody>
                     <!-- ( for s in stocks ) -->
+                    {% for stock in watchlist %}
                     <tr class="small">
-                        <th scope="row" class="border-right bg-light fixed-t"><a href="#">AAPL</a></th>
+                        <th scope="row" class="border-right bg-light fixed-t"><a href="#">{{stock.symbol}}</a></th>
                         <td>$110</td>
                         <!-- ( if gain > 0) -->
                         <td class="text-success">$2.15</td>
@@ -114,38 +113,35 @@
                         <td>$108.75</td>
                         <td>$109.82</td>
                     </tr>
-                    <!-- ( endfor ) -->
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
-        <!-- ( endblock ) -->
     </div>
     <div class="col-sm-7 pl-5 pr-5">
-        <form class="w-50" action="#" method="GET">
-            <div class="input-group mb-3">
-                <input type="search" class="form-control" placeholder="Search...">
+        <form action="{% url 'portfolio' %}" method="GET"> 
+            {% csrf_token %}
+            <div class="input-group mb-3 w-75">
+                <input type="search" class="form-control" name="search" id="search" placeholder="Search...">
                 <div class="input-group-append">
-                    <!-- add search icon from font awesome -->
-                <button class="btn btn-outline-success" type="submit" id="btn_searc">Search</button>
+                    <button class="btn btn-outline-success" type="submit" id="btn_search">Search</button>
                 </div>
             </div>
         </form>
         <div class="row">
             <div class="col-sm-10">
-                <!-- (symbol) - (name of symbol) -->
-                <h3><span class="text-success">AAPL</span> - APPLE, INC.</h3>
-                <!-- ( if already on list, disable button ) -->
-                <button type="submit" class="btn btn-outline-success" formaction="#"><small>+ Watchlist</small></button>
+                <h3><span class="text-success" id="h-sym">{{symbol}}</span> - <span id="h-name">{{name}}</span></h3>
+                <button type="button" class="btn btn-outline-success" id="watch-btn"><small>+ Watchlist</small></button>
             </div>
             <!-- buy/sell buttons -->
-            <!-- (block btns ) -->
             <div class="col-sm-2">
-                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-primary active"><input type="radio" name="buy" id="buy"> Buy</label>
-                    <label class="btn btn-danger"><input type="radio" name="sell" id="sell"> Sell</label>
-                </div>
+                <form action="{% url 'trade' buy symbol %}">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <button type="submit" class="btn btn-primary active">Buy</button>
+                        <button type="submit" class="btn btn-danger" formaction="{% url 'trade' sell symbol %}">Sell</button>
+                    </div>
+                </form>
             </div>
-            <!-- ( endblock %) -->
         </div>
         <p class="mt-5">Chart here<br>
         <br>
@@ -271,4 +267,5 @@
     </div>
 </div>
 {% endblock %}
+{}
 
