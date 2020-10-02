@@ -130,12 +130,16 @@
         </form>
         <div class="row">
             <div class="col-sm-10">
-                <h3><span class="text-success" id="h-sym">{{symbol}}</span> - <span id="h-name">{{name}}</span></h3>
-                <button type="button" class="btn btn-outline-success" id="watch-btn"><small>+ Watchlist</small></button>
+                <form action="{% url 'add-stock' symbol name %}" method="POST">
+                    {% csrf_token %}
+                    <h3><span class="text-success" id="h-sym">{{symbol}}</span> - <span id="h-name">{{name}}</span></h3>
+                    <button type="submit" class="btn btn-outline-success" id="watch-btn"><small>+ Watchlist</small></button>
+                </form>
             </div>
             <!-- buy/sell buttons -->
             <div class="col-sm-2">
                 <form action="{% url 'trade' buy symbol %}">
+                    {% csrf_token %}
                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
                         <button type="submit" class="btn btn-primary active">Buy</button>
                         <button type="submit" class="btn btn-danger" formaction="{% url 'trade' sell symbol %}">Sell</button>
