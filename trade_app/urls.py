@@ -6,7 +6,8 @@ from .forms import LoginForm, PasswordChange
 urlpatterns = [
     path('', views.home, name="home"),
     path('portfolio/', views.portfolio, name="portfolio"),
-    path('trade/', views.trade, name="trade"), 
+    path('portfolio/<str:symbol>/<str:name>/', views.add_to_watchlist, name="add-stock"),
+    path('trade/<str:action>/<str:symbol>/', views.trade, name="trade"), 
     path('login/', LoginView.as_view(template_name='trade_app/login.html', authentication_form=LoginForm), name="login"),
     path('login/user/', views.user_account, name="useract"),
     path('logout/', LogoutView.as_view(template_name='trade_app/logout.html'), name="logout"),
