@@ -1,17 +1,23 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 import requests
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 # from matplotlib import style
 from datetime import datetime
 from .forms import RegisterForm, PasswordChange, PasswordReset
 from django.contrib.auth.models import User
-from .models import Account
+from trade_app.models import Account, Position, Watchlist, Order
 from django.urls import reverse
 from django.contrib.auth.views import LoginView
 
 
 def home(request):
+
+    context = {
+        'symbol': 'AMZN',
+        'action': 'Buy'
+    }    
+    return render(request, 'trade_app/base.html', context)
     # # get news headlines
     # news_url = "https://bloomberg-market-and-financial-news.p.rapidapi.com/stories/list"
 
@@ -85,10 +91,46 @@ def home(request):
     #     'trends': latest_trends,
     #     'popular': pop_watch
     # }
-    
-    return render(request, 'trade_app/base.html')
 
 def portfolio(request):
+    positions = Position.objects.all().values('symbol', 'shares').filter(user__username=request.user)
+    watchlist = Watchlist.objects.all().values('symbol').filter(user__username=request.user)
+    shares = []
+    
+    for p in positions:
+        shares.append(p['shares'])
+    
+    total_shares = sum(shares)
+    
+    if 'search' in request.GET:
+        query = request.GET.get('search')
+        url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete"
+        querystring = {"region":"US","q":query}
+        headers = {
+            'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
+            'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
+        }
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        stock = response.json()
+        symbol = stock['quotes'][0]['symbol'] 
+        name = stock['quotes'][0]['longname'] 
+    else: 
+        symbol = 'GOOG'
+        name = 'GOOGLE, INC.'
+
+
+    context = {
+        'positions': positions,
+        'watchlist': watchlist,
+        'total': total_shares,
+        'symbol': symbol,
+        'name': name,
+        'buy': 'Buy',
+        'sell': 'Sell'
+    }
+
+    return render(request, 'trade_app/portfolio.html', context)
+    
     # url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v3/get-historical-data"
 
     # querystring = {"region":"US","symbol":"AMZN"}
@@ -118,10 +160,44 @@ def portfolio(request):
     # stock = {
     #     'prices': prices
     # }
-    return render(request, 'trade_app/portfolio.html')
 
-def trade(request):
-    return render(request, 'trade_app/trade.html')
+def add_to_watchlist(request, symbol, name):
+    if request.method == 'POST':
+        if Watchlist.objects.filter(symbol=symbol).exists():
+            pass
+        else:
+            add = Watchlist(user=request.user, symbol=symbol, name=name)
+            add.save()
+    else: 
+        pass
+    
+    return HttpResponseRedirect('/portfolio/')
+
+def plotstock(request, stock):
+    stock_data = [stock.date, stock.close]
+    plt.figure(figsize = (12,6))
+    plt.plot(stock_data, 'b')
+    plt.plot(stock_data, 'ro')
+    plt.grid(True)
+    plt.title('Historical Data')
+    plt.xlabel("Date")
+    plt.ylabel("Close Price")
+
+    plt.plot(stock_data)
+    plot_data = plt.show()
+
+    context ={'plot': plot_data}
+        
+    return render(request, 'trade_app/portfolio.html', context)
+
+def trade(request, action='Buy', symbol='AMZN'):
+
+    context = {
+        'symbol': symbol,
+        'action': action
+    }
+    return render(request, 'trade_app/trade.html', context)
+
 
 # Forms
 
