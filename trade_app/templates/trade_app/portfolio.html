@@ -1,4 +1,5 @@
 {% extends 'trade_app/base.html' %}
+{% load static %}
 
 {% block title %}Portfolio{% endblock %}
 
@@ -16,7 +17,7 @@
 
 {% block trade %}
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'trade' buy symbol %}">Trade</a>
+    <a class="nav-link" href="{% url 'trade' %}">Trade</a>
 </li>
 {% endblock %}
 
@@ -30,6 +31,8 @@
         <a class="dropdown-item" href="{% url 'pwd-change' %}">Change Password</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="{% url 'reset' %}">Reset</a>
     </div>
 </li>
 {% endblock %}
@@ -38,6 +41,9 @@
 <div class="row mt-5">
     <div class="col-sm-5 pr-5 border-right">
         <h5 class="text-success">Positions:</h5>
+        {% if positions|length == 0 %}
+        <p>You have no positions. </p>
+        {% else %}
         <div class="scroll-h">
             <table class="table table-hover table-sm">
                 <thead class="thead-light">
@@ -45,231 +51,94 @@
                         <th class="fixed-t">Symbol</th>
                         <th>Quantity</th>
                         <th>Price</th>
-                        <!-- multiply by quantity for day gain $ -->
                         <th>Day Gain $</th> 
                         <th>Day Gain %</th>
-                        <th>Gain $</th> 
-                        <th>Gain %</th>
-                        <th>Purchase</th>
+                        <th>High</th> 
+                        <th>Low</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- ( for s in stocks ) -->
                     {% for p in positions %}
                     <tr class="small">
-                        <th scope="row" class="border-right fixed-t bg-light"><a href="#">{{p.symbol}}</a></th>
-                        <td>{{p.shares}}</td>
-                        <td>$2,000</td>
-                        <!-- ( if gain > ) -->
-                        <td class="text-success">$2.15</td>
-                        <!-- ( else ) -->
-                        <!-- <td class="text-danger"></td> -->
-                        <!-- ( endif ) -->
-                        <!-- ( if gain > 0) -->
-                        <td class="text-success">1.17</td>
-                        <!-- ( else ) -->
-                        <!-- <td class="text-danger"></td> -->
-                        <!-- ( endif ) -->
-                        <td>na</td>
-                        <td>na</td>
-                        <td>na</td>
+                        <th scope="row" class="border-right fixed-t text-primary bg-light"><a href="{% url 'plot' p.0 p.1 %}">{{p.0}}</a></th>
+                        <td>{{p.2}}</td>
+                        <td>{{p.3|floatformat:2}}</td>
+                        <td>{{p.4|floatformat:2}}</td>
+                        <td>{{p.5|floatformat:2}}%</td>
+                        <td>{{p.6|floatformat:2}}</td>
+                        <td>{{p.7|floatformat:2}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
         <p><strong>Total Shares: </strong>{{total}}</p>
+        {% endif %}
         <h5 class="text-success mt-5">Watchlist:</h5>
+        {% if watchlist|length == 0 %}
+        <button class="btn btn-sm btn-success sch-watch">+ Add symbol</button>
+        <div class="input-group mt-3 w-75 sch-watch-box">
+            <input type="search" class="form-control sch-watch-input" name="sch" id="sch" placeholder="Enter symbol or name..." required>
+            <div class="input-group-append">
+                <button class="btn btn-outline-success sch-watch-btn" type="submit" id="btn_sch"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        {% else %}
         <div class="scroll-h">
             <table class="table table-hover table-sm">
                 <thead class="thead-light">
                     <tr class="small">
                         <th class="fixed-t">Symbol</th>
                         <th>Price</th>
-                        <th>Last Chg $</th>
-                        <th>Last Chg %</th>
-                        <th>Volume</th>
-                        <th>Bid</th>
-                        <th>Ask</th>
+                        <th>Day Chg $</th>
+                        <th>Day Chg %</th>
+                        <th>High</th>
+                        <th>Low</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- ( for s in stocks ) -->
-                    {% for stock in watchlist %}
+                    {% for w in watchlist %}
                     <tr class="small">
-                        <th scope="row" class="border-right bg-light fixed-t"><a href="#">{{stock.symbol}}</a></th>
-                        <td>$110</td>
-                        <!-- ( if gain > 0) -->
-                        <td class="text-success">$2.15</td>
-                        <!-- ( else ) -->
-                        <!-- <td class="text-danger"></td> -->
-                        <!-- ( endif ) -->
-                        <!-- ( if gain > 0 ) -->
-                        <td class="text-success">1.17</td>
-                        <!-- ( else ) -->
-                        <!-- <td class="text-danger"></td> -->
-                        <!-- ( endif ) -->
-                        <td>4,567,768</td>
-                        <td>$108.75</td>
-                        <td>$109.82</td>
+                        <th scope="row" class="border-right text-primary bg-light fixed-t"><a href="{% url 'plot' w.0 w.1 %}">{{w.0}}</a></th>
+                        <td>{{w.2|floatformat:2}}</td>
+                        <td>{{w.3|floatformat:2}}</td>
+                        <td>{{w.4|floatformat:2}}%</td>
+                        <td>{{w.5|floatformat:2}}</td>
+                        <td>{{w.6|floatformat:2}}</td>
+                        <td><a href="{% url 'delete-stock' w.0 %}"><i class="fas fa-minus-circle text-danger"></i></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <button class="btn btn-sm btn-success sch-watch">+ Add symbol</button>
+            <div class="input-group mt-3 w-75 sch-watch-box">
+                <input type="search" class="form-control sch-watch-input" name="search" id="search" placeholder="Enter symbol or name..." required>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-success sch-watch-btn" type="submit" id="btn_search"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
     <div class="col-sm-7 pl-5 pr-5">
-        <form action="{% url 'portfolio' %}" method="GET"> 
-            {% csrf_token %}
-            <div class="input-group mb-3 w-75">
-                <input type="search" class="form-control" name="search" id="search" placeholder="Search...">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-success" type="submit" id="btn_search">Search</button>
-                </div>
-            </div>
-        </form>
+        {% if not positions and not watchlist %}
+        {% else %}
         <div class="row">
+            {% if symbol == None %}
+            {% else %}
             <div class="col-sm-10">
-                <form action="{% url 'add-stock' symbol name %}" method="POST">
-                    {% csrf_token %}
-                    <h3><span class="text-success" id="h-sym">{{symbol}}</span> - <span id="h-name">{{name}}</span></h3>
-                    <button type="submit" class="btn btn-outline-success" id="watch-btn"><small>+ Watchlist</small></button>
-                </form>
+                <h3><span class="text-success" id="h-sym">{{symbol}}</span> - <span id="h-name">{{name}}</span></h3>
             </div>
-            <!-- buy/sell buttons -->
             <div class="col-sm-2">
-                <form action="{% url 'trade' buy symbol %}">
-                    {% csrf_token %}
-                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <button type="submit" class="btn btn-primary active">Buy</button>
-                        <button type="submit" class="btn btn-danger" formaction="{% url 'trade' sell symbol %}">Sell</button>
-                    </div>
+                <form action="{% url 'trade' %}">
+                    <button type="submit" class="btn btn-success" name="trade" value="{{symbol}}">Trade</button>
                 </form>
             </div>
+            {% endif %}
         </div>
-        <p class="mt-5">Chart here<br>
-        <br>
-        <br>
-        <br>
-        <br><br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br></p>
-        <!-- historical data table -->
-        <div class="scroll-v">
-            <table class="table table-hover table-sm">
-                <thead class="thead-light">
-                    <tr class="small">
-                        <th class="fixed-h">Date</th>
-                        <th class="fixed-h">Open</th>
-                        <th class="fixed-h">High</th>
-                        <th class="fixed-h">Low</th>
-                        <th class="fixed-h">Close</th>
-                        <th class="fixed-h">Adj Close</th>
-                        <th class="fixed-h">Volume</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- (for h in history) -->
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <!-- (endfor ) -->
-                </tbody>
-            </table>
-        </div>
+        <div class="row mb-4"><img src="{% static 'trade_app/images/stock-chart.png' %}" id="stockit" alt="stock chart" style="width:100%"></div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
-{}
-

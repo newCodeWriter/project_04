@@ -16,7 +16,7 @@
 
 {% block trade %}
 <li class="nav-item">
-    <a class="nav-link active bg-secondary" href="{% url 'trade' action symbol %}">Trade</a>
+    <a class="nav-link active bg-secondary" href="{% url 'trade' %}">Trade</a>
 </li>
 {% endblock %}
 
@@ -30,6 +30,8 @@
         <a class="dropdown-item" href="{% url 'pwd-change' %}">Change Password</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="{% url 'reset' %}">Reset</a>
     </div>
 </li>
 {% endblock %}
@@ -38,47 +40,54 @@
 <div class="row mt-5">
     <div class="col-sm-5 pr-5 border-right">
         <div class="row mb-4">
-            {% if '^NQ' in symbol %}
-            <div class="col-sm-2"><h4></h4></div>
+            {% if symbol == None %}
             {% else %}
             <div class="col-sm-2"><h4>{{symbol}}</h4></div>
-            {% endif %}
             <div class="col-sm-10">
                 <table>
                     <tr class="small">
-                        <th scope="row">Last</th>
-                        <td class="border-right pr-1">$1.45</td>
-                        <th scope="row" class="pl-2">Bid</th>
-                        <td class="border-right pr-1">$2.43</td>
-                        <th scope="row" class="pl-2">Change</th>
-                        <td>$1.85</td>
+                        <th scope="row" class="pr-2">Last</th>
+                        <td class="border-right pr-1">${{last|floatformat:2}}</td>
+                        <th scope="row" class="pl-2 pr-2">Change</th>
+                        <td>${{change|floatformat:2}}</td>
                     </tr>
                     <tr class="small">
-                        <th scope="row">Price</th>
-                        <td class="border-right pr-1">$1.45</td>
-                        <th scope="row" class="pl-2">Ask</th>
-                        <td class="border-right pr-1">$2.43</td>
-                        <th scope="row" class="pl-2">Percent</th>
-                        <td>$1.85</td>
+                        <th scope="row" class="pr-2">Price</th>
+                        <td class="border-right pr-1">${{price|floatformat:2}}</td>
+                        <th scope="row" class="pl-2 pr-2">Percent</th>
+                        <td>{{percent|floatformat:2}}%</td>
                     </tr>
                 </table>
             </div>
+            {% endif %}
         </div>
-        <form action="#">
+        <form action="#" method="POST">
+            {% csrf_token %}
             <div class="row mb-3">
                 <div class="col">
                     <label for="quantity">Action</label><br/>
-                    <select class="form-control" id="sel1" name="sellist1">
-                        {% if action == 'Buy' %}
+                    <!-- if user in list, they can buy and sell -->
+                    {% if symbol == None %}
+                    <select class="form-control action" id="buy" name="buy" disabled>
                         <option selected>Buy</option>
-                        {% elif action == 'Sell' %}
-                        <option selected >Sell</option>
-                        {% endif %}
-                      </select>
+                    </select>
+                    {% else %}
+                    {% if user.id in users %}
+                    <select class="form-control action" id="buy_sell" name="buy_sell">
+                        <option>Buy</option>
+                        <option>Sell</option>
+                    </select>
+                    <!-- if user not in list, they can only buy -->
+                    {% else %}
+                    <select class="form-control action" id="buy" name="buy">
+                        <option>Buy</option>
+                    </select>
+                    {% endif %}
+                    {% endif %}
                 </div>
                 <div class="col">
                     <label for="quantity">Type</label><br/>
-                    <select class="form-control" id="sel1" name="sellist1">
+                    <select class="form-control" id="opts" name="opts">
                         <option>Limit</option>
                         <option>Market</option>
                         <option>Stop Market</option>
@@ -89,37 +98,49 @@
             <div class="row mb-5">
                 <div class="col">
                     <label for="quantity">Quantity</label><br/>
-                    <input type="number" min="1" class="form-control" id="quantity" name="quantity" value="1" required>
+                    <div class="input-group">
+                        {% if symbol == None %}
+                        <input type="number" class="form-control" id="quantity" name="quantity" disabled>
+                        {% else %}
+                        <input type="number" class="form-control trade-quantity" id="quantity" value="0" name="quantity" min="0">
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="col">
                     <label for="quantity">Price</label><br/>
-                    <input type="number" step="0.01" min="1" class="form-control pricing" name="pswd" value="45.67" required>
+                    <input type="number" class="form-control pricing" name="pswd" value="{{price|floatformat:2}}" readonly>
                 </div>
             </div>
-            <p>Cash available for trading: $145.67</p>
-            <p><strong>Estimated total: $345.78</strong></p>
-            <button type="submit" class="btn btn-success mt-4">Place Order</button>
+            {% if user.id in users %}
+            <p class="text-success bolder">Shares Available: <span id="shares">{{shares}}</span></p>
+            {% endif %}
+            <p>Cash available for trading: <span id="usr-cash">{{cash}}</span></p>
+            <p><strong>Estimated total: <span id="estimate"></span></strong></p>
+            <button type="button" class="btn btn-success mt-4 order-btn">Place Order</button>
+            <p class="text-danger total-excess mt-3 order-error"></p>
         </form>
-    </div>
+    </div>  
     <div class="col-sm-7 pl-5 pr-5">
-        <div class="row">
+        <form>
+            <div class="input-group mb-4 w-75">
+                <input type="search" class="form-control trade-sch-input" name="trade" id="trade" placeholder="Enter name or symbol" required>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-success trade-sch-btn" type="submit" id="btn_search">Search</button>
+                </div>
+            </div>
+        </form>
+        <div class="row mb-2">
             <div class="col-sm-10">
-                {% if '^NQ' in symbol %}
-                <h3><span class="text-success"></span> - Amazon, Inc.</h3>
+                {% if symbol == None %}
                 {% else %}
-                <h3><span class="text-success">{{symbol}}</span> - Amazon, Inc.</h3>
+                <h3><span class="text-success" id="h-sym">{{symbol}}</span> - <span id="h-name">{{name}}</span></h3>
                 {% endif %}
             </div>
         </div>
-        <p class="mt-5">Chart here<br>
-        <br>
-        <br>    
-        <br>
-        <br>
-        <br>
-        <br></p>
         <!-- historical data table -->
-        <div class="scroll-v">
+        <div class="scroll-trade mt-4">
+            {% if symbol == None %}
+            {% else %}
             <table class="table table-hover table-sm">
                 <thead class="thead-light">
                     <tr class="small">
@@ -129,105 +150,57 @@
                         <th class="fixed-h">Low</th>
                         <th class="fixed-h">Close</th>
                         <th class="fixed-h">Adj Close</th>
-                        <th class="fixed-h">Volume</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- (for h in history) -->
+                    {% for price in table %}
                     <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
+                        <td>{{price.date}}</td>
+                        <td>{{price.open}}</td>
+                        <td>{{price.high}}</td>
+                        <td>{{price.low}}</td>
+                        <td>{{price.close}}</td>
+                        <td>{{price.adjclose}}</td>
                     </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div><br>
+        <hr>
+        <!-- Order History Table -->
+        {% if orders|length == 0 %}
+        <h6 class="mt-4 font-weight-bolder">Transaction History:</h6>
+        <p>You have no existing orders.</p>
+        {% else %}
+        <h6 class="mt-4 font-weight-bolder">Transaction History:</h6>
+        <div class="scroll-trade mt-3">
+            <table class="table table-hover table-sm">
+                <thead class="thead-light">
                     <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
+                        <th class="fixed-h">Symbol</th>
+                        <th class="fixed-h">Name</th>
+                        <th class="fixed-h">Price</th>
+                        <th class="fixed-h">Action</th>
+                        <th class="fixed-h">Quantity</th>
+                        <th class="fixed-h">Order Date</th>
                     </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
                     <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
+                        <td>{{order.symbol}}</td>
+                        <td>{{order.name}}</td>
+                        <td>{{order.price}}</td>
+                        <td>{{order.action}}</td>
+                        <td>{{order.quantity}}</td>
+                        <td>{{order.order_date}}</td>
                     </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <tr class="small">
-                        <td>September 20, 2020</td>
-                        <td>$110</td>
-                        <td>$1.52</td>
-                        <td>1.17%</td>
-                        <td>$108.75</td>
-                        <td>$107.52</td>
-                        <td>4,556,789</td>
-                    </tr>
-                    <!-- (endfor ) -->
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

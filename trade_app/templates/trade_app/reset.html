@@ -1,0 +1,52 @@
+{% extends 'trade_app/base.html' %}
+
+{% block title %}Reset{% endblock %}
+
+{% block home %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'home' %}">Home</a>
+</li>
+{% endblock %}
+
+{% block portfolio %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'portfolio' %}">Portfolio</a>
+</li>
+{% endblock %}
+
+{% block trade %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'trade' %}">Trade</a>
+</li>
+{% endblock %}
+
+{% block login %}
+{% endblock %}
+
+{% block registration %}
+<li class="nav-item dropdown">
+    <a class="nav-link pr-4" href="#" data-toggle="dropdown"><i class="fas fa-user"></i> Welcome, {{user|title}}</a>
+    <div class="dropdown-menu">
+        <a class="dropdown-item" href="{% url 'pwd-change' %}">Change Password</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="{% url 'reset' %}">Reset</a>
+    </div>
+</li>
+{% endblock %}
+
+{% block content %}
+<form action="{% url 'reset_acct' %}" method="POST" class="mt-5">
+    {% csrf_token %}
+    <h4>Reset</h4>
+    <h6>Are you sure?</h6>
+    <p>
+        This will delete your transaction history and reset your account to its initial balance. 
+        Any positions you may currently have and any stocks you may have in your watchlist will also be deleted. 
+        Please click 'Ok' to reset account. 
+    </p>
+    <button type="submit" class="btn btn-danger mt-4">OK</button>
+</form>
+{% endblock %}
+
