@@ -15,7 +15,7 @@
         <nav class="navbar navbar-expand-sm navbar-dark bg-success p-0">
             <!-- Brand/logo -->
             <a class="navbar-brand pl-4 pr-3" href="#">TradeUp <i class="fas fa-sort-amount-up"></i></a>
-            <!-- Links -->
+            <!-- Navbar Links -->
             <ul class="navbar-nav">
                 {% block home %}
                 <li class="nav-item">
@@ -56,6 +56,8 @@
                         <a class="dropdown-item" href="{% url 'pwd-change' %}">Change Password</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'reset' %}">Reset</a>
                     </div>
                 </li>
                 {% else %}
@@ -68,13 +70,151 @@
         </nav>
         <div class="container-fluid position-absolute">
             {% block content %}
-
-            
+            <div class="row mt-5">
+                <div class="col-sm-6 col-md-5 col-lg-3 tables_container">
+                    <!-- table for trending stocks -->
+                    <h6>Top 5 Trending</h6>          
+                    <table class="table table-sm">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="font-weight-light small" rowspan="2">Symbol</th>
+                                <th class="font-weight-light small">Last Price</th>
+                                <th class="font-weight-light small">Change</th>
+                                <th class="font-weight-light small">% Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in trends %}
+                            <tr>
+                                <td class="font-weight-bold small text-primary t-data">{{t.symbol}}</td>
+                                <td class="small t-data">{{t.regularMarketPrice|floatformat:2}}</td>
+                                {% if t.regularMarketChange > 0 %}
+                                <td class="small t-data text-success">{{t.regularMarketChange|floatformat:2}}</td>
+                                {% else %}
+                                <td class="small t-data text-danger">{{t.regularMarketChange|floatformat:2}}</td>
+                                {% endif %}
+                                {% if t.regularMarketChangePercent > 0 %}
+                                <td class="small t-data text-success">{{t.regularMarketChangePercent|floatformat:2}}</td>
+                                {% else %}
+                                <td class="small t-data text-danger">{{t.regularMarketChangePercent|floatformat:2}}</td>
+                                {% endif %}
+                            </tr>
+                            <tr class="font-weight-light small text-secondary">
+                                <td colspan="4" class="symbol">{{t.shortName}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- table for most active stocks -->
+                    <h6 class="mt-2">Stocks: Most Actives</h6>          
+                    <table class="table table-sm">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="font-weight-light small" rowspan="2">Symbol</th>
+                                <th class="font-weight-light small">Last Price</th>
+                                <th class="font-weight-light small">Change</th>
+                                <th class="font-weight-light small">% Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in actives %}
+                            <tr>
+                                <td class="font-weight-bold small text-primary t-data">{{a.Security.RegionAndTicker|cut:"USA:"}}</td>
+                                <td class="small t-data">{{a.Quote.YesterdayPrice|floatformat:2}}</td>
+                                {% if a.Quote.PriceChange > 0 %}
+                                <td class="small t-data text-success">{{a.Quote.PriceChange|floatformat:2}}</td>
+                                {% else %}
+                                <td class="small t-data text-danger">{{a.Quote.PriceChange|floatformat:2}}</td>
+                                {% endif %}
+                                {% if a.Quote.PercentChange > 0 %}
+                                <td class="small t-data text-success">{{a.Quote.PercentChange|floatformat:2}}</td>
+                                {% else %}
+                                <td class="small t-data text-danger">{{a.Quote.PercentChange|floatformat:2}}</td>
+                                {% endif %}
+                            </tr>
+                            <tr class="font-weight-light small text-secondary">
+                                <td colspan="4" class="symbol">{{a.Security.Name}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- table for gainers stocks -->
+                    <h6 class="mt-2">Stocks: Gainers</h6>          
+                    <table class="table table-sm">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="font-weight-light small" rowspan="2">Symbol</th>
+                                <th class="font-weight-light small">Last Price</th>
+                                <th class="font-weight-light small">Change</th>
+                                <th class="font-weight-light small">% Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for g in gainers %}
+                            <tr>
+                                <td class="font-weight-bold small text-primary t-data">{{g.Security.RegionAndTicker|cut:"USA:"}}</td>
+                                <td class="small t-data">{{g.Quote.YesterdayPrice|floatformat:2}}</td>
+                                {% if g.Quote.PriceChange > 0 %}
+                                <td class="small t-data text-success">{{g.Quote.PriceChange|floatformat:2}}</td>
+                                {% else %}
+                                <td class="small t-data text-danger">{{g.Quote.PriceChange|floatformat:2}}</td>
+                                {% endif %}
+                                {% if g.Quote.PercentChange > 0 %}
+                                <td class="small t-data text-success">{{g.Quote.PercentChange|floatformat:2}}</td>
+                                {% else %}
+                                <td class="small t-data text-danger">{{g.Quote.PercentChange|floatformat:2}}</td>
+                                {% endif %}
+                            </tr>
+                            <tr class="font-weight-light small text-secondary">
+                                <td colspan="4" class="symbol">{{g.Security.Name}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-6 col-md-7 col-lg-9">
+                    <div class="row img-container">
+                        <img src="{% static 'trade_app/images/home.jpg' %}" alt="a green arrow pointing up" class="d-block pl-3 pr-3" width="100%" height="350px">
+                        <div class="img-txt">
+                            <h2>Building your wealth with every trade</h2>
+                            <form action="{% url 'register' %}" class="mt-5">
+                                <button type="submit" class="btn btn-success p-2"> Open new account</button>
+                            </form>
+                        </div>
+                    </div>
+                    <h6 class="mt-4 text-success">Explore Popular Watchlists</h6>
+                    <div class="row mt-4">
+                        {% for p in popular %}
+                        <div class="col">  
+                            <div class="card">
+                                <img class="card-img-top" src="{% static 'trade_app/images/download.jpg' %}" alt="card image" style="width:100%">
+                                <div class="card-body">
+                                    <h5 class="card-title small font-weight-bold">{{p.name}}</h5>
+                                    <div class="small">{{p.shortDescription}}</div><br/>
+                                    <div class="card-text small">
+                                        <div class="text-primary">{{p.followerCount}} followers</div>
+                                        <div>{{p.symbolCount}} symbols 
+                                            {% if p.dailyPercentGain > 0 %}
+                                            <span class="text-success">{{p.dailyPercentGain|floatformat:2}}%</span>
+                                            {% else %}
+                                            <span class="text-danger">{{p.dailyPercentGain|floatformat:2}}%</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <a href="https://finance.yahoo.com/u/yahoo-finance/watchlists/{{p.slug}}" target="_blank" class="stretched-link"></a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
             {% endblock %}
         </div>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         <script src="https://kit.fontawesome.com/67e14e1161.js" crossorigin="anonymous"></script>
+        <script src="{% static 'trade_app/app.js' %}"></script>
     </body>
 </html>

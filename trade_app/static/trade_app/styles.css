@@ -11,10 +11,10 @@ input{
     box-shadow: none !important;
 }
 .container-fluid{
-    padding: 0 6rem !important;
+    padding: 0 5rem !important;
 }
 .tables_container{
-    padding-left: 4rem !important;
+    padding-right: 2rem !important;
 }
 td.symbol{
     border-top: none !important;
@@ -31,10 +31,10 @@ table.table-sm{
     width: 100%;
     table-layout: auto;
 }
-.scroll-h{
+/* .scroll-h{
     overflow-x: scroll !important;
     overflow-y: visible !important;
-}
+} */
 .fixed-t{
     position: sticky;
     left: 0;
@@ -43,10 +43,10 @@ table.table-sm{
     position: sticky;
     top: -1px;
 }
-.scroll-v{
+/* .scroll-v{
     overflow-y: scroll !important;
     height: 150px;
-}
+} */
 .scroll-trade{
     overflow-y: scroll !important;
     height: 200px;
@@ -76,4 +76,13 @@ nav ul a{
 }
 a{
     text-decoration: none !important;
+}
+.img-container{
+    position: relative;
+    color: white;
+}
+.img-txt{
+    position: absolute;
+    top: 4rem;
+    left: 3rem;
 }
