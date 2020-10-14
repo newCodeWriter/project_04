@@ -47,6 +47,10 @@ table.table-sm{
     overflow-y: scroll !important;
     height: 150px;
 }
+.scroll-trade{
+    overflow-y: scroll !important;
+    height: 200px;
+}
 nav ul a{
     padding: .8rem!important;
 }
@@ -66,4 +70,10 @@ nav ul a{
 .register-container{
     background-color: rgba(0,0,0,0.8) !important;
     width: 35%;
+}
+.forgot{
+    cursor: default;
+}
+a{
+    text-decoration: none !important;
 }
