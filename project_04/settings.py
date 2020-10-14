@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'debug_toolbar',
+    'django_matplotlib',
     'bootstrap4',
     'trade_app',
 ]
@@ -77,7 +79,7 @@ WSGI_APPLICATION = 'project_04.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'website',
+        'NAME': 'project',
         'USER': 'root',
         'PASSWORD': '$afrodite@89',
         'HOST': '127.0.0.1',
@@ -132,5 +134,17 @@ BOOTSTRAP4 = {
     "include_jquery": True,
 }
 
-LOGIN_REDIRECT_URL = 'useract'
+# INTERNAL_IPS = ['127.0.0.1',]
+# MIDDLEWARE = MIDDLEWARE + [
+#     'debug_toolbar.middleware.DebugToolbarMiddleware',
+# ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'projectCache',
+    }
+}
+
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
