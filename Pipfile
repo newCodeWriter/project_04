@@ -18,6 +18,8 @@ pandas-datareader = "*"
 django-pandas = "*"
 seaborn = "*"
 mysqlclient = "*"
+fix-yahoo-finance = "==0.1.30"
+django-matplotlib = "*"
 
 [requires]
 python_version = "3.8"
