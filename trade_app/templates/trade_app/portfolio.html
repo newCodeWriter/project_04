@@ -39,12 +39,12 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col-sm-5 pr-5 border-right">
+    <div class="col-sm-6 col-lg-5 pr-0 pr-sm-5 border-right pb-5 port-left-col">
         <h5 class="text-success">Positions:</h5>
         {% if positions|length == 0 %}
         <p>You have no positions. </p>
         {% else %}
-        <div class="scroll-h">
+        <div class="table-responsive">
             <table class="table table-hover table-sm">
                 <thead class="thead-light">
                     <tr class="small">
@@ -84,7 +84,7 @@
             </div>
         </div>
         {% else %}
-        <div class="scroll-h">
+        <div class="table-responsive">
             <table class="table table-hover table-sm">
                 <thead class="thead-light">
                     <tr class="small">
@@ -113,7 +113,7 @@
             </table>
             <button class="btn btn-sm btn-success sch-watch">+ Add symbol</button>
             <div class="input-group mt-3 w-75 sch-watch-box">
-                <input type="search" class="form-control sch-watch-input" name="search" id="search" placeholder="Enter symbol or name..." required>
+                <input type="search" class="form-control sch-watch-input" name="search" id="search" placeholder="Enter symbol or name...">
                 <div class="input-group-append">
                     <button class="btn btn-outline-success sch-watch-btn" type="submit" id="btn_search"><i class="fas fa-search"></i></button>
                 </div>
@@ -121,16 +121,16 @@
             {% endif %}
         </div>
     </div>
-    <div class="col-sm-7 pl-5 pr-5">
+    <div class=" col-sm-6 col-lg-7 pl-0 pr-0 pl-sm-3 pr-sm-3 pl-md-5 pr-md-5 pt-4 pt-sm-0 port-right-col">
         {% if not positions and not watchlist %}
         {% else %}
         <div class="row">
             {% if symbol == None %}
             {% else %}
-            <div class="col-sm-10">
+            <div class="col-9 col-md-10">
                 <h3><span class="text-success" id="h-sym">{{symbol}}</span> - <span id="h-name">{{name}}</span></h3>
             </div>
-            <div class="col-sm-2">
+            <div class="col-3 col-md-2">
                 <form action="{% url 'trade' %}">
                     <button type="submit" class="btn btn-success" name="trade" value="{{symbol}}">Trade</button>
                 </form>

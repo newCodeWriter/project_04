@@ -4,7 +4,7 @@
     padding: 0;
     font-family: 'Playfair Display', serif;
 }
-.fa-dollar-sign{
+.fa-user-circle{
     color: white;
 }
 input{
@@ -12,6 +12,9 @@ input{
 }
 .container-fluid{
     padding: 0 5rem !important;
+}
+.modal-body > div:hover{
+    background-color: rgb(221, 219, 219);
 }
 .tables_container{
     padding-right: 2rem !important;
@@ -31,10 +34,6 @@ table.table-sm{
     width: 100%;
     table-layout: auto;
 }
-/* .scroll-h{
-    overflow-x: scroll !important;
-    overflow-y: visible !important;
-} */
 .fixed-t{
     position: sticky;
     left: 0;
@@ -43,10 +42,6 @@ table.table-sm{
     position: sticky;
     top: -1px;
 }
-/* .scroll-v{
-    overflow-y: scroll !important;
-    height: 150px;
-} */
 .scroll-trade{
     overflow-y: scroll !important;
     height: 200px;
@@ -54,17 +49,19 @@ table.table-sm{
 nav ul a{
     padding: .8rem!important;
 }
-.taught{
+.dropdown-item{
+    padding: 6px !important;
+}
+/* .taught{
     left: 0;
     right: 0;
     margin: auto;
     top: 50%;
-
-    /* top: 100px !important; */
-}
+} */
 .bg_image{
     background: white url("images/stocksup.jpg") no-repeat;
     background-size: cover;
+    min-height: 100vh;
 }
 
 .register-container{
@@ -85,4 +82,68 @@ a{
     position: absolute;
     top: 4rem;
     left: 3rem;
+}
+
+/* media queries */
+@media (min-width: 846px) and (max-width: 1140px){
+    .register-container{
+        width: 50%;
+    }
+}
+@media (min-width: 769px) and (max-width: 845px){
+    .register-container{
+        width: 60%;
+    }
+}
+@media (min-width: 577px) and (max-width: 700px){
+    .container-fluid{
+        padding: 0 2rem !important;
+    }
+    /* for password-change form */
+    .pwc-input{
+        width: 50% !important;
+    }
+}
+@media (max-width: 768px){
+    .register-container{
+        width: 75%;
+    }
+     /* for trade page */
+    .trade-left-col{
+        border-right: none !important;
+    }
+    .trade-right-col{
+        border-bottom: 1px solid rgb(233, 230, 230) !important;
+    }
+}
+@media (min-width: 768px) and (max-width: 850px){
+    .trade-right-col h3{
+        font-size: 1.2rem !important;
+    }
+}
+@media (max-width: 576px){
+    /* for portfolio page */
+    .port-left-col{
+        border-right: none !important;
+        border-bottom: 1px solid rgb(233, 230, 230) !important;
+    }
+    /* for password-change form */
+    .pwc-input{
+        width: 75% !important;
+    }
+    .register-container{
+        width: 90%;
+    }
+    .container-fluid{
+        padding: 0 0.65rem !important;
+    }
+}
+/* for portfolio page */
+@media (max-width: 915px){
+    .port-right-col h3{
+        font-size: 1.2rem !important;
+    }
+    .port-right-col button{
+        font-size: 0.80rem !important;
+    }
 }

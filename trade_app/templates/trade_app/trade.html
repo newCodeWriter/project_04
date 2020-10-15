@@ -38,12 +38,12 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col-sm-5 pr-5 border-right">
+    <div class="col-12 col-md-6 col-lg-5 pr-md-5 border-right trade-left-col order-2 order-md-1">
         <div class="row mb-4">
             {% if symbol == None %}
             {% else %}
-            <div class="col-sm-2"><h4>{{symbol}}</h4></div>
-            <div class="col-sm-10">
+            <div class="col-3 col-sm-2 pt-5 pt-md-0"><h4>{{symbol}}</h4></div>
+            <div class="col-9 col-sm-10 pt-5 pt-md-0">
                 <table>
                     <tr class="small">
                         <th scope="row" class="pr-2">Last</th>
@@ -64,7 +64,7 @@
         <form action="#" method="POST">
             {% csrf_token %}
             <div class="row mb-3">
-                <div class="col">
+                <div class="col-9 col-sm-7 col-md-6 pb-3 pb-md-0">
                     <label for="quantity">Action</label><br/>
                     <!-- if user in list, they can buy and sell -->
                     {% if symbol == None %}
@@ -85,7 +85,7 @@
                     {% endif %}
                     {% endif %}
                 </div>
-                <div class="col">
+                <div class="col-9 col-sm-7 col-md-6">
                     <label for="quantity">Type</label><br/>
                     <select class="form-control" id="opts" name="opts">
                         <option>Limit</option>
@@ -96,9 +96,9 @@
                 </div>
             </div>
             <div class="row mb-5">
-                <div class="col">
+                <div class="col-9 col-sm-7 col-md-6">
                     <label for="quantity">Quantity</label><br/>
-                    <div class="input-group">
+                    <div class="input-group pb-3 pb-md-0">
                         {% if symbol == None %}
                         <input type="number" class="form-control" id="quantity" name="quantity" disabled>
                         {% else %}
@@ -106,7 +106,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="col">
+                <div class="col-9 col-sm-7 col-md-6">
                     <label for="quantity">Price</label><br/>
                     <input type="number" class="form-control pricing" name="pswd" value="{{price|floatformat:2}}" readonly>
                 </div>
@@ -118,17 +118,54 @@
             <p><strong>Estimated total: <span id="estimate"></span></strong></p>
             <button type="button" class="btn btn-success mt-4 order-btn">Place Order</button>
             <p class="text-danger total-excess mt-3 order-error"></p>
-        </form>
+        </form><br>
+        <hr>
+        <!-- Order History Table -->
+        {% if orders|length == 0 %}
+        <h6 class="mt-4 font-weight-bolder">Transaction History:</h6>
+        <p>You have no existing orders.</p>
+        {% else %}
+        <h6 class="mt-4 font-weight-bolder">Transaction History:</h6>
+        <div class="scroll-trade mt-3">
+            <table class="table table-hover table-sm">
+                <thead class="thead-light">
+                    <tr class="small">
+                        <th class="fixed-h">Symbol</th>
+                        <th class="fixed-h">Name</th>
+                        <th class="fixed-h">Price</th>
+                        <th class="fixed-h">Action</th>
+                        <th class="fixed-h">Quantity</th>
+                        <th class="fixed-h">Order Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr class="small">
+                        <td>{{order.symbol}}</td>
+                        <td>{{order.name}}</td>
+                        <td>{{order.price}}</td>
+                        <td>{{order.action}}</td>
+                        <td>{{order.quantity}}</td>
+                        <td>{{order.order_date}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>  
-    <div class="col-sm-7 pl-5 pr-5">
-        <form>
-            <div class="input-group mb-4 w-75">
-                <input type="search" class="form-control trade-sch-input" name="trade" id="trade" placeholder="Enter name or symbol" required>
-                <div class="input-group-append">
-                    <button class="btn btn-outline-success trade-sch-btn" type="submit" id="btn_search">Search</button>
-                </div>
+    <div class="col-12 col-md-6 col-lg-7 pl-md-5 order-1 order-md-2 trade-right-col pb-4">
+        <div class="row">
+            <div class="col-12 col-sm-9 col-md-12 col-lg-9">
+                <form>
+                    <div class="input-group mb-4 trade-search">
+                        <input type="search" class="form-control trade-sch-input" name="trade" id="trade" placeholder="Enter name or symbol" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-success trade-sch-btn" type="submit" id="btn_search">Search</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
         <div class="row mb-2">
             <div class="col-sm-10">
                 {% if symbol == None %}
@@ -166,39 +203,6 @@
                 </tbody>
             </table>
             {% endif %}
-        </div><br>
-        <hr>
-        <!-- Order History Table -->
-        {% if orders|length == 0 %}
-        <h6 class="mt-4 font-weight-bolder">Transaction History:</h6>
-        <p>You have no existing orders.</p>
-        {% else %}
-        <h6 class="mt-4 font-weight-bolder">Transaction History:</h6>
-        <div class="scroll-trade mt-3">
-            <table class="table table-hover table-sm">
-                <thead class="thead-light">
-                    <tr class="small">
-                        <th class="fixed-h">Symbol</th>
-                        <th class="fixed-h">Name</th>
-                        <th class="fixed-h">Price</th>
-                        <th class="fixed-h">Action</th>
-                        <th class="fixed-h">Quantity</th>
-                        <th class="fixed-h">Order Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                    <tr class="small">
-                        <td>{{order.symbol}}</td>
-                        <td>{{order.name}}</td>
-                        <td>{{order.price}}</td>
-                        <td>{{order.action}}</td>
-                        <td>{{order.quantity}}</td>
-                        <td>{{order.order_date}}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
         {% endif %}
     </div>
