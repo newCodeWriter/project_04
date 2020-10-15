@@ -52,12 +52,6 @@ nav ul a{
 .dropdown-item{
     padding: 6px !important;
 }
-/* .taught{
-    left: 0;
-    right: 0;
-    margin: auto;
-    top: 50%;
-} */
 .bg_image{
     background: white url("images/stocksup.jpg") no-repeat;
     background-size: cover;
