@@ -38,9 +38,9 @@ class LoginForm(AuthenticationForm):
 
         
 class PasswordChange(PasswordChangeForm):
-    old_password =  forms.CharField(label='Old Password: ', max_length=30, widget=forms.PasswordInput(attrs={'class': 'form-control w-25', 'name': 'old-pwd', 'id': 'old-pwd', 'minlength': 8}))
-    new_password1 = forms.CharField(label='New Password: ', max_length=30, widget=forms.PasswordInput(attrs={'class': 'form-control w-25', 'name': 'pwd-change', 'id': 'pwd_change', 'minlength': 8}))
-    new_password2 = forms.CharField(label='Confirm Password: ', max_length=30, widget=forms.PasswordInput(attrs={'class': 'form-control w-25', 'name': 'pwd_confirm', 'id': 'pwd_confirm', 'minlength': 8}))
+    old_password =  forms.CharField(label='Old Password: ', max_length=30, widget=forms.PasswordInput(attrs={'class': 'form-control w-25 pwc-input', 'name': 'old-pwd', 'id': 'old-pwd', 'minlength': 8}))
+    new_password1 = forms.CharField(label='New Password: ', max_length=30, widget=forms.PasswordInput(attrs={'class': 'form-control w-25 pwc-input', 'name': 'pwd-change', 'id': 'pwd_change', 'minlength': 8}))
+    new_password2 = forms.CharField(label='Confirm Password: ', max_length=30, widget=forms.PasswordInput(attrs={'class': 'form-control w-25 pwc-input', 'name': 'pwd_confirm', 'id': 'pwd_confirm', 'minlength': 8}))
 
 class PasswordReset(forms.Form):
     user_pwd_reset = forms.CharField(label='Username: ', max_length=30, widget=forms.TextInput(attrs={'class': 'form-control w-25', 'placeholder': 'Username', 'required': True, 'name': 'reset_usr', 'id': 'reset_usr', 'minlength':4}))
