@@ -25,31 +25,47 @@ $(function(){
 
     $('.sch-watch-btn').on('click', function(){
         query = $('.sch-watch-input').val()
-        var settings = {
-            "async": true,
-            "crossDomain": true,
-            "url": `https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete?region=US&q=${query}`,
-            "method": "GET",
-            "headers": {
-                "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
-                "x-rapidapi-key": "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
-            }
-        }
         
-        $.ajax(settings).done(function(response){
-            var data = response.quotes; 
-            symbol = data[0].symbol; 
-            name = data[0].longname;
-            $.ajax({
-                url: '/portfolio/search/',
-                method: 'POST',
-                data: {
-                    'symbol':symbol,
-                    'name':name
-                },
-                success: function(){location.reload()}
+        if(query === ''){
+            $('.sch-watch-input').focus()
+        }
+        else{
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": `https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete?region=US&q=${query}`,
+                "method": "GET",
+                "headers": {
+                    "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
+                    "x-rapidapi-key": "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
+                }
+            }
+            
+            $.ajax(settings).done(function(response){
+                console.log('request finished')
+                var data = response.quotes; 
+                symbol = data[0].symbol; 
+                name = data[0].longname;
+    
+                if(name === 'undefined'){
+                    console.log('There was an error with this request. This symbol does not exist.');
+                    $('.sch-watch-input').val('');
+                }
+                else{
+                    $.ajax({
+                        url: '/portfolio/search/',
+                        method: 'POST',
+                        data: {
+                            'symbol':symbol,
+                            'name':name
+                        },
+                        success: function(){
+                            location.reload();
+                        }
+                    })
+                }
             })
-        })
+        }
     })
 
     $('.trade-quantity').on('change', function(){
@@ -66,7 +82,7 @@ $(function(){
         action = $('.action').val();
         quantity = $('.trade-quantity').val();
         shares = parseInt($('#shares').text())
-        if (action == 'Buy' && total > cash){
+        if(action == 'Buy' && total > cash){
             $('.order-error').text('Your order exceeds the cash available for trading.')
         }
         else if(action == 'Sell' && quantity > shares){
@@ -85,7 +101,12 @@ $(function(){
                     'quantity':quantity,
                     'total':total
                 },
-                success: function(){location.href = '/portfolio/'}
+                success: function(){
+                    location.href = '/portfolio/'
+                },
+                error: function(data){
+                    console.log('error: ' + data);
+                }
             })
         }
     })

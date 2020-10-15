@@ -24,46 +24,54 @@ from django.http import JsonResponse
 def home(request):
 
     # get trending tickers
+    if cache.get('trend') == None:
+        trend_url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-trending-tickers"
+        trend_query = {"region":"US"}
+        yahoo_headers = {
+            'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
+            'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
+        }
+        response = requests.request("GET", trend_url, headers=yahoo_headers, params=trend_query)
+        trend_dict = response.json()
+        latest_trends = trend_dict['finance']['result'][0]['quotes'][0:4]
+        cache.set('trend', latest_trends)
+    else:   
+        latest_trends = cache.get('trend')
 
-    trend_url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-trending-tickers"
+    # get popular watchlists
+    if cache.get('popular') == None:
+        pop_url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-popular-watchlists"
+        yahoo_headers = {
+            'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
+            'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
+        }
+        response = requests.request("GET", pop_url, headers=yahoo_headers)
+        pop_dict = response.json()
+        pop_watch = pop_dict['finance']['result'][0]['portfolios'][0:3]
 
-    trend_query = {"region":"US"}
-
-    yahoo_headers = {
-        'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
-        'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
-    }
-
-    response = requests.request("GET", trend_url, headers=yahoo_headers, params=trend_query)
-    trend_dict = response.json()
-    latest_trends = trend_dict['finance']['result'][0]['quotes'][0:4]
-
-    # # get popular watchlists
-
-    pop_url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-popular-watchlists"
-
-    response = requests.request("GET", pop_url, headers=yahoo_headers)
-    pop_dict = response.json()
-    pop_watch = pop_dict['finance']['result'][0]['portfolios'][0:3]
-
-    for p in pop_watch:
-        p['followerCount'] = "{:,}".format(p['followerCount'])
+        for p in pop_watch:
+            p['followerCount'] = "{:,}".format(p['followerCount'])
+        cache.set('popular', pop_watch, 900)
+    else:
+        pop_watch = cache.get('popular')
     
     # get movers
-
-    movers_url = "https://morning-star.p.rapidapi.com/market/get-movers"
-
-    movers_query = {"PerformanceId":"0P00001GJH"}
-
-    morning_headers = {
-        'x-rapidapi-host': "morning-star.p.rapidapi.com",
-        'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
-    }
-
-    response = requests.request("GET", movers_url, headers=morning_headers, params=movers_query)
-    movers_dict = response.json()
-    actives = movers_dict['Top10']['Actives']['Securities'][0:4]
-    gainers = movers_dict['Top10']['Gainers']['Securities'][0:4]
+    if cache.get('actives') == None:
+        movers_url = "https://morning-star.p.rapidapi.com/market/get-movers"
+        movers_query = {"PerformanceId":"0P00001GJH"}
+        morning_headers = {
+            'x-rapidapi-host': "morning-star.p.rapidapi.com",
+            'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
+        }
+        response = requests.request("GET", movers_url, headers=morning_headers, params=movers_query)
+        movers_dict = response.json()
+        actives = movers_dict['Top10']['Actives']['Securities'][0:4]
+        gainers = movers_dict['Top10']['Gainers']['Securities'][0:4]
+        cache.set('actives', actives)
+        cache.set('gainers', gainers)
+    else:
+        actives = cache.get('actives')
+        gainers = cache.get('gainers')
 
     context = {
         'actives': actives,
@@ -110,10 +118,9 @@ def portfolio(request):
             info = [p['symbol'], p['name'], p['shares'], close, change, percent, high, low]
             position_prices.append(info)
 
-        if len(position_prices) <= 2:
-            pass
-        else:
+        if len(position_prices) > 2:
             cache.set('position_list', position_prices, 60)
+
     else: 
         position_prices = cache.get('position_list')
 
@@ -133,9 +140,7 @@ def portfolio(request):
             info = [w['symbol'], w['name'], close, change, percent, high, low]
             watch_prices.append(info)
         
-        if len(watch_prices) <= 2:
-            pass
-        else:
+        if len(watch_prices) > 2:
             cache.set('watch_list', watch_prices, 60)
 
     else: 
@@ -160,14 +165,20 @@ def add_to_watch (request):
         else:
             add = Watchlist(user=request.user, symbol=symbol, name=name)
             add.save()
+        return HttpResponseRedirect(reverse('portfolio'))
+    else:
+        return HttpResponseRedirect(reverse('home'))
     
-    return HttpResponseRedirect(reverse('portfolio'))
 
 def delete_from_watch (request, symbol):
-    delete = Watchlist.objects.get(symbol=symbol)
-    delete.delete()
+    try:
+        delete = Watchlist.objects.get(symbol=symbol)
+    except ObjectDoesNotExist:
+        pass
+    else: 
+        delete.delete()
     
-    return HttpResponseRedirect('/portfolio/')
+    return HttpResponseRedirect(reverse('portfolio'))
 
 
 def trade(request):
@@ -177,19 +188,23 @@ def trade(request):
 
     if 'trade' in request.GET:
         # get stock info
-
-        query = request.GET.get('trade')
+        try:
+            query = request.GET.get('trade')
         
-        url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete"
-        querystring = {"region":"US","q":query}
-        headers = {
-            'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
-            'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
-        }
-        response = requests.request("GET", url, headers=headers, params=querystring)
-        data = response.json()
-        symbol = data['quotes'][0]['symbol'] 
-        name = data['quotes'][0]['longname']
+            url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete"
+            querystring = {"region":"US","q":query}
+            headers = {
+                'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
+                'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
+            }
+            response = requests.request("GET", url, headers=headers, params=querystring)
+            data = response.json()
+            symbol = data['quotes'][0]['symbol'] 
+            name = data['quotes'][0]['longname']
+        except:
+            symbol = 'AAPL'
+            name = 'Apple, Inc.'
+
     else: 
         symbol = 'AAPL'
         name = 'Apple, Inc.' 
@@ -220,14 +235,14 @@ def trade(request):
         p['adjclose'] = "${:,.2f}".format(p['adjclose'])
 
 
-    # loop through users who own shares in the company, and then check if active user already has shares in company 
+    # check if active user already has shares in company 
 
     users = []
     positions = Position.objects.values('user').filter(symbol=symbol)
     for p in positions:
         users.append(p['user'])
 
-    # if active user has shares in company, get the amount of shares
+    # if active user has shares in company, get the number of shares
 
     if request.user.id in users:
         share_count = Position.objects.filter(user__username=request.user, symbol=symbol)[0].shares
@@ -286,21 +301,26 @@ def checkout(request):
         return HttpResponseRedirect(reverse('home'))
 
 def reset(request):
-    return render(request, 'trade_app/reset.html')
+    if request.user.is_authenticated:
+        return render(request, 'trade_app/reset.html')
+    else:
+        return HttpResponseRedirect(reverse('home'))
 
 def reset_acct(request):
-    Account.objects.filter(user__username=request.user).update(cash_balance=1500.00)
-    Position.objects.filter(user__username=request.user).delete()
-    Watchlist.objects.filter(user__username=request.user).delete()
-    StockOrder.objects.filter(user__username=request.user).delete()
-    # delete any sessions
-    if 'symbol' in request.session:
-        del request.session['symbol']
-        del request.session['name']
-    else: 
+    if request.user.is_authenticated:
+        Account.objects.filter(user__username=request.user).update(cash_balance=1500.00)
+        Position.objects.filter(user__username=request.user).delete()
+        Watchlist.objects.filter(user__username=request.user).delete()
+        StockOrder.objects.filter(user__username=request.user).delete()
+        # delete any sessions
+        if 'symbol' in request.session:
+            del request.session['symbol']
+            del request.session['name']
+        else: 
+            pass
+    else:
         pass
     return HttpResponseRedirect(reverse('home'))
-
 
 # Forms
 
@@ -315,14 +335,6 @@ def get_registration(request):
 
     return render(request, 'trade_app/registration.html', {'form': form})
 
-def deposit(request, newuser):
-    add_user = User.objects.get(username=newuser)
-    new_user_account = Account(user=add_user, cash_balance=1500)
-    new_user_account.save()
-
-    context = {'user': add_user}
-    return render(request, 'trade_app/registration-confirmed.html', context)
-
 def user_account(request):
     if request.user.is_authenticated:
         username = request.user.get_username()
@@ -332,13 +344,24 @@ def user_account(request):
     context = {'user': username}
     return render(request, 'trade_app/user-account.html', context)
 
+def deposit(request, newuser):
+    add_user = User.objects.get(username=newuser)
+    new_user_account = Account(user=add_user, cash_balance=1500)
+    new_user_account.save()
+
+    context = {'user': add_user}
+    return render(request, 'trade_app/registration-confirmed.html', context)
+
 def new_pwd_confirmed(request):
-    return render(request, 'trade_app/new-pwd-confirmed.html')
+    if request.user.is_authenticated:
+        return render(request, 'trade_app/new-pwd-confirmed.html')
+    else:
+        return HttpResponseRedirect(reverse('home'))
 
 # get chart
 
 def get_chart(request, ticker, name):
-    # create plot
+    # format plot
     startDate = '2015-01-01'
     endDate = str(datetime.now().strftime('%Y-%m-%d'))
     months = MonthLocator(range(1,13), bymonthday=1, interval=3)
@@ -346,8 +369,12 @@ def get_chart(request, ticker, name):
     semiFmt = DateFormatter("%b '%y")
     stock_data = pdr.DataReader(ticker, 'yahoo', startDate, endDate)
     weekdays = pd.date_range(start=startDate, end=endDate)
+
+    # clean data
     clean_data = stock_data['Adj Close'].reindex(weekdays)
     adj_close = clean_data.fillna(method='ffill')
+
+    # create plot
     fig, ax = plt.subplots()
     ax.plot(adj_close, 'g')
     ax.xaxis.set_major_locator(semi_annual)
@@ -361,9 +388,8 @@ def get_chart(request, ticker, name):
     plt.savefig('../project_04/trade_app/static/trade_app/images/stock-chart.png')
     plt.close()
 
-    # create sessions for portfolio to use for trade
+    # create sessions to use for trade
     request.session['symbol'] = ticker
     request.session['name'] = name
 
     return HttpResponseRedirect(reverse('portfolio'))
-
