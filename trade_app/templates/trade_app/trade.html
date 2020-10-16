@@ -152,6 +152,7 @@
                 </tbody>
             </table>
         </div>
+        {% endif %}
     </div>  
     <div class="col-12 col-md-6 col-lg-7 pl-md-5 order-1 order-md-2 trade-right-col pb-4">
         <div class="row">
@@ -168,16 +169,11 @@
         </div>
         <div class="row mb-2">
             <div class="col-sm-10">
-                {% if symbol == None %}
-                {% else %}
                 <h3><span class="text-success" id="h-sym">{{symbol}}</span> - <span id="h-name">{{name}}</span></h3>
-                {% endif %}
             </div>
         </div>
         <!-- historical data table -->
         <div class="scroll-trade mt-4">
-            {% if symbol == None %}
-            {% else %}
             <table class="table table-hover table-sm">
                 <thead class="thead-light">
                     <tr class="small">
@@ -202,9 +198,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-            {% endif %}
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

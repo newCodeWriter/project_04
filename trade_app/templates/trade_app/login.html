@@ -1,6 +1,7 @@
 {% extends 'trade_app/base.html' %}
 {{ form.non_field_errors }}
 
+{% block html %}<html lang="en" class="login-img-container">{% endblock %}
 {% block title%}Log In{% endblock %}
 {% block home %}
 <li class="nav-item">
@@ -48,5 +49,17 @@
     </form>
   </div>
 </li>
-
+{% endblock %}
+{% block content %}
+<div class="row img-container">
+  <div class="img-txt">
+      <h2>Building your wealth with every trade</h2>
+      {% if user.is_authenticated %}
+      {% else %}
+      <form action="{% url 'register' %}" class="mt-5">
+          <button type="submit" class="btn btn-success p-2"> Open new account</button>
+      </form>
+      {% endif %}
+  </div>
+</div>
 {% endblock %}
