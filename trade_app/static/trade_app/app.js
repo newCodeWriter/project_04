@@ -42,27 +42,32 @@ $(function(){
             }
             
             $.ajax(settings).done(function(response){
-                console.log('request finished')
                 var data = response.quotes; 
-                symbol = data[0].symbol; 
-                name = data[0].longname;
-    
-                if(name === 'undefined'){
-                    console.log('There was an error with this request. This symbol does not exist.');
-                    $('.sch-watch-input').val('');
+                try{
+                    symbol = data[0].symbol; 
+                    name = data[0].longname;
+                    // search of 'yahoo' returns a result with 'undefined' name but is not caught in catch statement.
+                    if(symbol === 'undefined' || name === 'undefined'){
+                        console.log('There was an error with this request.');
+                        $('.sch-watch-input').val('');
+                    }
+                    else{
+                        $.ajax({
+                            url: '/portfolio/search/',
+                            method: 'POST',
+                            data: {
+                                'symbol':symbol,
+                                'name':name
+                            },
+                            success: function(){
+                                location.reload();
+                            }
+                        })
+                    }
                 }
-                else{
-                    $.ajax({
-                        url: '/portfolio/search/',
-                        method: 'POST',
-                        data: {
-                            'symbol':symbol,
-                            'name':name
-                        },
-                        success: function(){
-                            location.reload();
-                        }
-                    })
+                catch(err){
+                    console.log(err);
+                    $('.sch-watch-input').val('');
                 }
             })
         }
