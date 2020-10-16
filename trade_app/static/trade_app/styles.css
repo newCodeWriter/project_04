@@ -44,10 +44,10 @@ table.table-sm{
 }
 .scroll-trade{
     overflow-y: scroll !important;
-    height: 200px;
+    height: 300px;
 }
 nav ul a{
-    padding: .8rem!important;
+    padding: 1rem!important;
 }
 .dropdown-item{
     padding: 6px !important;
@@ -57,7 +57,11 @@ nav ul a{
     background-size: cover;
     min-height: 100vh;
 }
-
+.login-img-container{
+    background: white url("images/home.jpg") no-repeat;
+    background-size: cover;
+    min-height: 100vh;
+}
 .register-container{
     background-color: rgba(0,0,0,0.8) !important;
     width: 35%;
