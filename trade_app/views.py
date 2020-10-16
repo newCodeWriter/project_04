@@ -6,9 +6,7 @@ import pandas_datareader as pdr
 from pandas_datareader._utils import RemoteDataError
 import matplotlib.pyplot as plt
 from matplotlib.dates import MonthLocator, DateFormatter
-from matplotlib import style
 from django.core.exceptions import ObjectDoesNotExist
-import datetime
 from datetime import date
 from datetime import datetime
 from .forms import RegisterForm, PasswordChange, PasswordReset
@@ -19,7 +17,6 @@ from django.db.models import F
 import yfinance as yf
 from django.core.cache import cache
 from django.core.cache import caches
-from django.http import JsonResponse
 
 def home(request):
 
@@ -160,9 +157,9 @@ def add_to_watch (request):
     if request.method == 'POST':
         symbol = request.POST.get('symbol')
         name = request.POST.get('name')
-        if Watchlist.objects.filter(symbol=symbol).exists():
-            pass
-        else:
+        try:
+            Watchlist.objects.get(user=request.user, symbol=symbol)
+        except ObjectDoesNotExist:
             add = Watchlist(user=request.user, symbol=symbol, name=name)
             add.save()
         return HttpResponseRedirect(reverse('portfolio'))
@@ -172,7 +169,7 @@ def add_to_watch (request):
 
 def delete_from_watch (request, symbol):
     try:
-        delete = Watchlist.objects.get(symbol=symbol)
+        delete = Watchlist.objects.get(user=request.user, symbol=symbol)
     except ObjectDoesNotExist:
         pass
     else: 
@@ -201,11 +198,14 @@ def trade(request):
             data = response.json()
             symbol = data['quotes'][0]['symbol'] 
             name = data['quotes'][0]['longname']
+
         except:
+            # use apple info as default if error
             symbol = 'AAPL'
             name = 'Apple, Inc.'
 
-    else: 
+    else:
+        # use apple info as default 
         symbol = 'AAPL'
         name = 'Apple, Inc.' 
 
@@ -220,7 +220,7 @@ def trade(request):
     response = requests.request("GET", url, headers=headers, params=querystring)
     data = response.json()
     close = data['prices'][0]['close']
-    prices = data['prices'][0:7]
+    prices = data['prices'][0:10]
     last = data['prices'][1]['close']
     change = close - last
     percent = (change/close) * 100
@@ -233,7 +233,6 @@ def trade(request):
         p['low'] = "${:,.2f}".format(p['low'])
         p['close'] = "${:,.2f}".format(p['close'])
         p['adjclose'] = "${:,.2f}".format(p['adjclose'])
-
 
     # check if active user already has shares in company 
 
@@ -259,9 +258,6 @@ def trade(request):
         'last': last,
         'users': users,
         'shares': share_count,
-        'buy': 'buy',
-        'sell': 'sell',
-        'action': 'buy',
         'change': change,
         'percent': percent
     }
@@ -270,15 +266,15 @@ def trade(request):
 
 def checkout(request):
     if request.method == 'POST':
-        account = Account.objects.filter(user__username=request.user)
-        cash = account[0].cash_balance
         symbol = request.POST.get('symbol')
         name = request.POST.get('name')
         action = request.POST.get('action')
         quantity = int(request.POST.get('quantity'))
         total = float(request.POST.get('total'))
-        withdrawal = float(cash) - float(total)
-        deposit = float(cash) + float(total)
+        account = Account.objects.filter(user__username=request.user)
+        cash = float(account[0].cash_balance)
+        withdrawal = cash - total
+        deposit = cash + total
         position = Position.objects.filter(user__username=request.user, symbol=symbol)
         if action == 'Buy':
             account.update(cash_balance=withdrawal)
@@ -299,6 +295,50 @@ def checkout(request):
         return HttpResponseRedirect(reverse('portfolio'))
     else: 
         return HttpResponseRedirect(reverse('home'))
+
+# register user
+
+def get_registration(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('confirm-user', args=[request.POST['username']]))
+    else:
+        form = RegisterForm()
+
+    return render(request, 'trade_app/registration.html', {'form': form})
+
+# confirm user's registration 
+
+def user_account(request):
+    if request.user.is_authenticated:
+        username = request.user.get_username()
+    else: 
+        username = None
+
+    context = {'user': username}
+    return render(request, 'trade_app/user-account.html', context)
+
+# deposit initial balance into user's account and complete setup
+
+def deposit(request, newuser):
+    add_user = User.objects.get(username=newuser)
+    new_user_account = Account(user=add_user, cash_balance=1500)
+    new_user_account.save()
+
+    context = {'user': add_user}
+    return render(request, 'trade_app/registration-confirmed.html', context)
+
+# confirm user's new password
+
+def new_pwd_confirmed(request):
+    if request.user.is_authenticated:
+        return render(request, 'trade_app/new-pwd-confirmed.html')
+    else:
+        return HttpResponseRedirect(reverse('home'))
+
+# reset user's account
 
 def reset(request):
     if request.user.is_authenticated:
@@ -322,45 +362,10 @@ def reset_acct(request):
         pass
     return HttpResponseRedirect(reverse('home'))
 
-# Forms
-
-def get_registration(request):
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('confirm-user', args=[request.POST['username']]))
-    else:
-        form = RegisterForm()
-
-    return render(request, 'trade_app/registration.html', {'form': form})
-
-def user_account(request):
-    if request.user.is_authenticated:
-        username = request.user.get_username()
-    else: 
-        username = None
-
-    context = {'user': username}
-    return render(request, 'trade_app/user-account.html', context)
-
-def deposit(request, newuser):
-    add_user = User.objects.get(username=newuser)
-    new_user_account = Account(user=add_user, cash_balance=1500)
-    new_user_account.save()
-
-    context = {'user': add_user}
-    return render(request, 'trade_app/registration-confirmed.html', context)
-
-def new_pwd_confirmed(request):
-    if request.user.is_authenticated:
-        return render(request, 'trade_app/new-pwd-confirmed.html')
-    else:
-        return HttpResponseRedirect(reverse('home'))
-
 # get chart
 
 def get_chart(request, ticker, name):
+
     # format plot
     startDate = '2015-01-01'
     endDate = str(datetime.now().strftime('%Y-%m-%d'))
