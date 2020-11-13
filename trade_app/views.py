@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 import requests
 import pandas as pd
 import pandas_datareader as pdr
@@ -15,8 +15,7 @@ from trade_app.models import Account, StockOrder, Position, Watchlist
 from django.urls import reverse
 from django.db.models import F
 import yfinance as yf
-from django.core.cache import cache
-from django.core.cache import caches
+from django.core.cache import cache, caches
 
 def home(request):
 
@@ -97,7 +96,7 @@ def portfolio(request):
         shares.append(p['shares'])
     total_shares = sum(shares)
 
-    # create cache for positions and watchlist, API key is limited to 12 requests per minute
+    # create cache for positions and watchlist as API key is limited to 12 requests per minute
 
     if cache.get('position_list') == None:
         position_prices = []
@@ -115,8 +114,7 @@ def portfolio(request):
             info = [p['symbol'], p['name'], p['shares'], close, change, percent, high, low]
             position_prices.append(info)
 
-        if len(position_prices) > 2:
-            cache.set('position_list', position_prices, 60)
+        cache.set('position_list', position_prices, 60)
 
     else: 
         position_prices = cache.get('position_list')
@@ -137,7 +135,7 @@ def portfolio(request):
             info = [w['symbol'], w['name'], close, change, percent, high, low]
             watch_prices.append(info)
         
-        if len(watch_prices) > 2:
+        if len(watch_prices) > 3:
             cache.set('watch_list', watch_prices, 60)
 
     else: 
@@ -184,30 +182,25 @@ def trade(request):
     orders = StockOrder.objects.all().filter(user__username=request.user)
 
     if 'trade' in request.GET:
-        # get stock info
-        try:
-            query = request.GET.get('trade')
-        
-            url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete"
-            querystring = {"region":"US","q":query}
-            headers = {
-                'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
-                'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
-            }
-            response = requests.request("GET", url, headers=headers, params=querystring)
-            data = response.json()
-            symbol = data['quotes'][0]['symbol'] 
-            name = data['quotes'][0]['longname']
+        query = request.GET.get('trade') # can be a symbol or a name
 
-        except:
-            # use apple info as default if error
-            symbol = 'AAPL'
-            name = 'Apple, Inc.'
+        # get symbol and name
+    
+        url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete"
+        querystring = {"region":"US","q":query}
+        headers = {
+            'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
+            'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
+        }
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        data = response.json()
+        symbol = data['quotes'][0]['symbol'] 
+        name = data['quotes'][0]['longname']
 
     else:
         # use apple info as default 
-        symbol = 'AAPL'
-        name = 'Apple, Inc.' 
+        symbol = 'CMG'
+        name = 'Chipotle Mexican Grill, Inc.' 
 
     # get closing price and historical data for table
 
@@ -225,14 +218,15 @@ def trade(request):
     change = close - last
     percent = (change/close) * 100
 
+    # format dates and prices for table
+
     for p in prices:
-        dt = datetime.fromtimestamp(p['date']).strftime("%B %d, %Y")
-        p['date'] = dt
-        p['open'] = "${:,.2f}".format(p['open'])
-        p['high'] = "${:,.2f}".format(p['high'])
-        p['low'] = "${:,.2f}".format(p['low'])
-        p['close'] = "${:,.2f}".format(p['close'])
-        p['adjclose'] = "${:,.2f}".format(p['adjclose'])
+        for k in p:
+            if k == 'date':
+                dt = datetime.fromtimestamp(p['date']).strftime("%B %d, %Y")
+                p['date'] = dt
+            elif k in ['open', 'high', 'low', 'close', 'adjclose']:
+                p[k] = "${:,.2f}".format(float(p[k]))
 
     # check if active user already has shares in company 
 

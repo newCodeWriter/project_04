@@ -44,7 +44,7 @@ table.table-sm{
 }
 .scroll-trade{
     overflow-y: scroll !important;
-    height: 300px;
+    max-height: 100vh;
 }
 nav ul a{
     padding: 1rem!important;
