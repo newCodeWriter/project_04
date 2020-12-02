@@ -42,14 +42,15 @@ $(function(){
             }
             
             $.ajax(settings).done(function(response){
-                var data = response.quotes; 
+                data = response.quotes; 
                 try{
                     symbol = data[0].symbol; 
                     name = data[0].longname;
-                    // search of 'yahoo' returns a result with 'undefined' name but is not caught in catch statement.
-                    if(symbol === 'undefined' || name === 'undefined'){
+                    patt = /[/\.\-\^]/g;
+                    result = patt.test(symbol);
+
+                    if(result === true){
                         console.log('There was an error with this request.');
-                        $('.sch-watch-input').val('');
                     }
                     else{
                         $.ajax({
@@ -59,11 +60,12 @@ $(function(){
                                 'symbol':symbol,
                                 'name':name
                             },
-                            success: function(){
-                                location.reload();
-                            }
+                            // success: function(){
+                            //     location.reload();  //redirect not working
+                            // }
                         })
                     }
+                    $('.sch-watch-input').val('');
                 }
                 catch(err){
                     console.log(err);
