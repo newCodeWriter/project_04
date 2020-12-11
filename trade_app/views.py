@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 import requests
 import pandas as pd
@@ -160,7 +160,11 @@ def add_to_watch (request):
         except ObjectDoesNotExist:
             add = Watchlist(user=request.user, symbol=symbol, name=name)
             add.save()
-        return HttpResponseRedirect(reverse('portfolio'))
+        else: 
+            pass
+        finally:
+            return HttpResponseRedirect(reverse('trade'))
+            # return render(request, 'trade_app/trade.html')
     else:
         return HttpResponseRedirect(reverse('home'))
     
@@ -180,12 +184,9 @@ def trade(request):
     
     cash = Account.objects.values('cash_balance').filter(user__username=request.user)[0]['cash_balance']
     orders = StockOrder.objects.all().filter(user__username=request.user)
-
-    if 'trade' in request.GET:
-        query = request.GET.get('trade') # can be a symbol or a name
-
-        # get symbol and name
     
+    try: 
+        query = request.GET.get('trade') # can be a symbol or a name
         url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete"
         querystring = {"region":"US","q":query}
         headers = {
@@ -196,27 +197,25 @@ def trade(request):
         data = response.json()
         symbol = data['quotes'][0]['symbol'] 
         name = data['quotes'][0]['longname']
-
-    else:
+    except:
         # use apple info as default 
         symbol = 'CMG'
         name = 'Chipotle Mexican Grill, Inc.' 
-
-    # get closing price and historical data for table
-
-    url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v3/get-historical-data"
-    querystring = {"region":"US","symbol":symbol}
-    headers = {
-        'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
-        'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
-    }
-    response = requests.request("GET", url, headers=headers, params=querystring)
-    data = response.json()
-    close = data['prices'][0]['close']
-    prices = data['prices'][0:10]
-    last = data['prices'][1]['close']
-    change = close - last
-    percent = (change/close) * 100
+    finally:
+        # get closing price and historical data for table
+        url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v3/get-historical-data"
+        querystring = {"region":"US","symbol":symbol}
+        headers = {
+            'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
+            'x-rapidapi-key': "3031e33fd9msh3c73fd1d3122a19p1a03abjsn0397c5598162"
+        }
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        data = response.json()
+        close = data['prices'][0]['close']
+        prices = data['prices'][0:10]
+        last = data['prices'][1]['close']
+        change = close - last
+        percent = (change/close) * 100
 
     # format dates and prices for table
 
