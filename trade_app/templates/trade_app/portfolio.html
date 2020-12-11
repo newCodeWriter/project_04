@@ -84,33 +84,35 @@
             </div>
         </div>
         {% else %}
-        <div class="table-responsive">
-            <table class="table table-hover table-sm">
-                <thead class="thead-light">
-                    <tr class="small">
-                        <th class="fixed-t">Symbol</th>
-                        <th>Price</th>
-                        <th>Day Chg $</th>
-                        <th>Day Chg %</th>
-                        <th>High</th>
-                        <th>Low</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for w in watchlist %}
-                    <tr class="small">
-                        <th scope="row" class="border-right text-primary bg-light fixed-t"><a href="{% url 'plot' w.0 w.1 %}">{{w.0}}</a></th>
-                        <td>{{w.2|floatformat:2}}</td>
-                        <td>{{w.3|floatformat:2}}</td>
-                        <td>{{w.4|floatformat:2}}%</td>
-                        <td>{{w.5|floatformat:2}}</td>
-                        <td>{{w.6|floatformat:2}}</td>
-                        <td><a href="{% url 'delete-stock' w.0 %}"><i class="fas fa-minus-circle text-danger"></i></a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div>
+            <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                    <thead class="thead-light">
+                        <tr class="small">
+                            <th class="fixed-t">Symbol</th>
+                            <th>Price</th>
+                            <th>Day Chg $</th>
+                            <th>Day Chg %</th>
+                            <th>High</th>
+                            <th>Low</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for w in watchlist %}
+                        <tr class="small">
+                            <th scope="row" class="border-right text-primary bg-light fixed-t"><a href="{% url 'plot' w.0 w.1 %}">{{w.0}}</a></th>
+                            <td>{{w.2|floatformat:2}}</td>
+                            <td>{{w.3|floatformat:2}}</td>
+                            <td>{{w.4|floatformat:2}}%</td>
+                            <td>{{w.5|floatformat:2}}</td>
+                            <td>{{w.6|floatformat:2}}</td>
+                            <td><a href="{% url 'delete-stock' w.0 %}"><i class="fas fa-minus-circle text-danger"></i></a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             <button class="btn btn-sm btn-success sch-watch">+ Add symbol</button>
             <div class="input-group mt-3 w-75 sch-watch-box">
                 <input type="search" class="form-control sch-watch-input" name="search" id="search" placeholder="Enter symbol or name...">
@@ -118,10 +120,10 @@
                     <button class="btn btn-outline-success sch-watch-btn" type="submit" id="btn_search"><i class="fas fa-search"></i></button>
                 </div>
             </div>
-            {% endif %}
         </div>
+        {% endif %}
     </div>
-    <div class=" col-sm-6 col-lg-7 pl-0 pr-0 pl-sm-3 pr-sm-3 pl-md-5 pr-md-5 pt-4 pt-sm-0 port-right-col">
+    <div class="col-sm-6 col-lg-7 pl-0 pr-0 pl-sm-3 pr-sm-3 pl-md-5 pr-md-5 pt-4 pt-sm-0 port-right-col">
         {% if not positions and not watchlist %}
         {% else %}
         <div class="row">
