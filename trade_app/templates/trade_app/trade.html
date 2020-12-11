@@ -114,8 +114,8 @@
             {% if user.id in users %}
             <p class="text-success bolder">Shares Available: <span id="shares">{{shares}}</span></p>
             {% endif %}
-            <p>Cash available for trading: <span id="usr-cash">{{cash}}</span></p>
-            <p><strong>Estimated total: <span id="estimate"></span></strong></p>
+            <p>Cash available for trading: $<span id="usr-cash">{{cash}}</span></p>
+            <p><strong>Estimated total: $<span id="estimate">0.00</span></strong></p>
             <button type="button" class="btn btn-success mt-4 order-btn">Place Order</button>
             <p class="text-danger total-excess mt-3 order-error"></p>
         </form><br>
