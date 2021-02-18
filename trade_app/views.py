@@ -83,18 +83,13 @@ def portfolio(request):
     watchlist = Watchlist.objects.all().values('symbol', 'name').filter(user__username=request.user)
 
     if 'symbol' in request.session:
-        symbol = request.session['symbol']
-        name = request.session['name']
+        symbol, name = request.session['symbol'], request.session['name']
     else: 
-        symbol = None
-        name = None
+        symbol, name = None, None
 
     # sum total no. of shares
 
-    shares = []
-    for p in positions:
-        shares.append(p['shares'])
-    total_shares = sum(shares)
+    total_shares = sum([p['shares'] for p in positions])
 
     # create cache for positions and watchlist as API key is limited to 12 requests per minute
 
@@ -102,7 +97,7 @@ def portfolio(request):
         position_prices = []
 
         for p in positions:
-            url = "https://api.twelvedata.com/quote?symbol=%s&apikey=441febfb7f41484f965dd7dd447af6b1" % (p['symbol'])
+            url = f"https://api.twelvedata.com/quote?symbol={p['symbol']}&apikey=441febfb7f41484f965dd7dd447af6b1"
             response = requests.request("GET", url)
             data = response.json()
             close = float(data['close'])
@@ -160,8 +155,6 @@ def add_to_watch (request):
         except ObjectDoesNotExist:
             add = Watchlist(user=request.user, symbol=symbol, name=name)
             add.save()
-        else: 
-            pass
         finally:
             return HttpResponseRedirect(reverse('trade'))
             # return render(request, 'trade_app/trade.html')
@@ -225,14 +218,12 @@ def trade(request):
                 dt = datetime.fromtimestamp(p['date']).strftime("%B %d, %Y")
                 p['date'] = dt
             elif k in ['open', 'high', 'low', 'close', 'adjclose']:
-                p[k] = "${:,.2f}".format(float(p[k]))
+                p[k] = f"${float(p[k]):,.2f}"
 
     # check if active user already has shares in company 
 
-    users = []
     positions = Position.objects.values('user').filter(symbol=symbol)
-    for p in positions:
-        users.append(p['user'])
+    users = [p['user'] for p in positions]
 
     # if active user has shares in company, get the number of shares
 
@@ -305,11 +296,7 @@ def get_registration(request):
 # confirm user's registration 
 
 def user_account(request):
-    if request.user.is_authenticated:
-        username = request.user.get_username()
-    else: 
-        username = None
-
+    username = request.user.get_username() if request.user.is_authenticated else None
     context = {'user': username}
     return render(request, 'trade_app/user-account.html', context)
 
