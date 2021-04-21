@@ -9,7 +9,6 @@ Built and designed by Marshay
 ## Preview/Demo
 <img width="1000" alt="Screen Shot 2021-04-20 at 9 13 12 PM" src="https://user-images.githubusercontent.com/65259996/115483134-32cdd180-a21e-11eb-9441-dc7d816d9993.png">
 <img width="1000" alt="Screen Shot 2021-04-20 at 9 14 16 PM" src="https://user-images.githubusercontent.com/65259996/115483137-36615880-a21e-11eb-872e-c9f906bd46dc.png">
-![Screen Shot 2021-04-20 at 9 13 39 PM](https://user-images.githubusercontent.com/65259996/115483153-3b260c80-a21e-11eb-9fc7-b47a035bf37a.png)
 <img width="1000" alt="Screen Shot 2021-04-20 at 9 15 57 PM" src="https://user-images.githubusercontent.com/65259996/115483169-44af7480-a21e-11eb-925d-7b2c5b8d3e34.png">
 <img width="1000" alt="Screen Shot 2021-04-20 at 9 16 34 PM" src="https://user-images.githubusercontent.com/65259996/115483175-4711ce80-a21e-11eb-95b1-34809118cf58.png">
 <img width="1000" alt="Screen Shot 2021-04-20 at 9 13 39 PM" src="https://user-images.githubusercontent.com/65259996/115483664-36158d00-a21f-11eb-8b89-49ec9062adfc.png">
