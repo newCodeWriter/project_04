@@ -1,5 +1,3 @@
-# Stock Trading
-
 # Trade Up
 
 Trade Up is a stock trading application that uses a third party API that utilizes a public web API to retrieve stock data and MySQL and Django for user management and authentication. 
